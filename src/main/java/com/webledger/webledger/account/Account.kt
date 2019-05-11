@@ -16,6 +16,9 @@ data class Account(
     @Enumerated
     var type: AccountType,
 
+    @Column(nullable = false)
+    var amount: BigDecimal,
+
     @Column(name = "credit_limit", nullable = true)
     var limit: BigDecimal
 )
