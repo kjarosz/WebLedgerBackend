@@ -1,5 +1,6 @@
 package com.webledger.webledger.allocationcenter
 
+import com.webledger.webledger.account.Account
 import java.math.BigDecimal
 import javax.persistence.*
 
@@ -15,6 +16,12 @@ data class AllocationCenter(
     @Column
     var amount: BigDecimal,
 
+    @Column
+    var goal: BigDecimal,
 
+    @OneToOne
+    var account: Account,
 
+    @OneToOne
+    var paidFrom: Account
 )
