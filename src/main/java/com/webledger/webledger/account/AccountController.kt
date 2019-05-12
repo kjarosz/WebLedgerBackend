@@ -9,15 +9,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class AccountController(
         @Autowired
-        val accountRepository: AccountRepository)
+        val accountService: AccountService)
 {
 
     @GetMapping("/accounts")
-    fun getAccounts(): Iterable<Account>? = accountRepository.findAll()
+    fun getAccounts() = accountService.getAllAccounts()
 
-    @PostMapping("/accounts")
-    fun postAccounts(@RequestBody account: Account) {
-
-        accountRepository.save(account)
-    }
 }

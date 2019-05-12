@@ -41,6 +41,9 @@ dependencies {
     runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    compile 'org.junit.jupiter:junit-jupiter-api:5.5.0-M1'
+    compile 'io.mockk:mockk:1.8.13.kotlin13'
 }
 compileKotlin {
     kotlinOptions {
