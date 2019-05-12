@@ -9,4 +9,11 @@ class AccountService(
         val accountRepository: AccountRepository
 ) {
     fun getAllAccounts(): Iterable<Account>? = accountRepository.findAll()
+
+    fun saveAccount(account: Account): Account? =
+        when {
+            account.id == null -> accountRepository.save(account)
+            !accountRepository.existsById(account.id) -> accountRepository.save(account)
+            else -> null
+        }
 }
