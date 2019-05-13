@@ -10,10 +10,11 @@ class AccountService(
 ) {
     fun getAllAccounts(): Iterable<Account>? = accountRepository.findAll()
 
-    fun saveAccount(account: Account): Account? =
-        when {
-            account.id == null -> accountRepository.save(account)
-            !accountRepository.existsById(account.id) -> accountRepository.save(account)
-            else -> null
+    fun saveAccount(account: Account): Account? {
+        if (account.id != null && accountRepository.existsById(account.id)) {
+            var storedAccount = accountRepository.findById(account.id).get()
+            account.amount = storedAccount.amount
         }
+        return accountRepository.save(account)
+    }
 }

@@ -6,8 +6,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.util.*
@@ -69,17 +68,26 @@ internal class AccountServiceTest {
     fun `updates existing account without changing amount`() {
         val accountUpdate = createTestAccount(0)
         accountUpdate.amount = BigDecimal(2.0)
+        accountUpdate.name = "Updated name"
+        accountUpdate.limit = BigDecimal.valueOf(3.0)
 
+        val storedAccount = createTestAccount(0)
+        val optionalWrapper = Optional.of(storedAccount)
         val accountSlot = slot<Account>()
 
-
         every { accountRepository.existsById(accountUpdate.id!!) } returns true
-        every { accountRepository.findById(storedAccount.id) } returns storedAccount
+        every { accountRepository.findById(storedAccount.id) } returns optionalWrapper
         every { accountRepository.save(capture(accountSlot)) } returns accountUpdate
 
-        val savedAccount = accountService.saveAccount(accountUpdate)
+        accountService.saveAccount(accountUpdate.copy())
 
-        verify(exactly = 1) { }
+        assertTrue(accountSlot.isCaptured)
+
+        val savedAccount = accountSlot.captured
+        assertEquals(storedAccount.amount, savedAccount.amount)
+
+        savedAccount.amount = accountUpdate.amount
+        assertEquals(accountUpdate, savedAccount)
     }
 }
 
