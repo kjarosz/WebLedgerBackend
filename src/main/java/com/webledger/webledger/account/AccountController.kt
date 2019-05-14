@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 
 @RestController
 class AccountController(
@@ -15,4 +16,15 @@ class AccountController(
     @GetMapping("/accounts")
     fun getAccounts() = accountService.getAllAccounts()
 
+    @PostMapping("/accounts/save")
+    fun saveAccount(@RequestBody accountUpdate: AccountUpdate) :Account? {
+        val account = Account(
+                accountUpdate.id,
+                accountUpdate.name!!,
+                accountUpdate.type!!,
+                BigDecimal.ZERO,
+                accountUpdate.limit!!
+        )
+        return accountService.saveAccount(account)
+    }
 }

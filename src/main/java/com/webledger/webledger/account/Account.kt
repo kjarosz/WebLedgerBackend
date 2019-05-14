@@ -1,7 +1,12 @@
 package com.webledger.webledger.account
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import java.math.BigDecimal
 import javax.persistence.*
+
+enum class AccountType {
+        Checking, Savings, Credit, Loan
+}
 
 @Entity
 data class Account (
@@ -17,12 +22,15 @@ data class Account (
         var type: AccountType,
 
         @Column(nullable = false)
-        var amount: BigDecimal,
+        var amount: BigDecimal = BigDecimal.ZERO,
 
         @Column(name = "credit_limit", nullable = true)
         var limit: BigDecimal
 )
 
-enum class AccountType {
-    Checking, Savings, Credit, Loan
-}
+data class AccountUpdate @JsonCreator constructor(
+        val id: Int?,
+        var name: String?,
+        var type: AccountType?,
+        var limit: BigDecimal?
+)
