@@ -1,10 +1,8 @@
 package com.webledger.webledger.account
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
 @RestController
@@ -12,19 +10,19 @@ class AccountController(
         @Autowired
         val accountService: AccountService)
 {
-
     @GetMapping("/accounts")
-    fun getAccounts() = accountService.getAllAccounts()
+    fun getAccounts(): ResponseEntity<Iterable<Account>?> = ResponseEntity.ok(accountService.getAllAccounts())
+
+    @GetMapping("/accounts/{id}")
+    fun getAccount(@PathVariable("id") id: Int): ResponseEntity<Account?> {
+        val account = accountService.getAccount(id)
+        return if (account != null) {
+            ResponseEntity.ok(account)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    } 
 
     @PostMapping("/accounts/save")
-    fun saveAccount(@RequestBody accountUpdate: AccountUpdate) :Account? {
-        val account = Account(
-                accountUpdate.id,
-                accountUpdate.name!!,
-                accountUpdate.type!!,
-                BigDecimal.ZERO,
-                accountUpdate.limit!!
-        )
-        return accountService.saveAccount(account)
-    }
+    fun saveAccount(@RequestBody account: Account) :Account? = accountService.saveAccount(account)
 }

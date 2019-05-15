@@ -1,6 +1,5 @@
 package com.webledger.webledger.account
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import java.math.BigDecimal
 import javax.persistence.*
 
@@ -26,11 +25,4 @@ data class Account (
 
         @Column(name = "credit_limit", nullable = true)
         var limit: BigDecimal
-)
-
-data class AccountUpdate @JsonCreator constructor(
-        val id: Int?,
-        var name: String?,
-        var type: AccountType?,
-        var limit: BigDecimal?
 )

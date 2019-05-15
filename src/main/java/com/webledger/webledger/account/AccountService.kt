@@ -1,6 +1,7 @@
 package com.webledger.webledger.account
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -9,6 +10,8 @@ class AccountService(
         val accountRepository: AccountRepository
 ) {
     fun getAllAccounts(): Iterable<Account>? = accountRepository.findAll()
+
+    fun getAccount(id: Int) = accountRepository.findByIdOrNull(id)
 
     fun saveAccount(account: Account): Account? {
         if (account.id != null && accountRepository.existsById(account.id)) {

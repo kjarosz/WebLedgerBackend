@@ -8,6 +8,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
 import java.util.*
 
@@ -34,6 +35,29 @@ internal class AccountServiceTest {
         val result = accountService.getAllAccounts()
 
         assertIterableEquals(accounts, result)
+    }
+
+    @Test
+    fun `gets account with particular id`() {
+        val accountId = 1
+        val existingAccount = createTestAccount(accountId)
+
+        every { accountRepository.findByIdOrNull(accountId) } returns existingAccount
+
+        val account = accountService.getAccount(accountId)
+
+        assertEquals(existingAccount, account)
+    }
+
+    @Test
+    fun `gets null for nonexistent account`() {
+        val accountId = 1
+
+        every { accountRepository.findByIdOrNull(accountId) } returns null
+
+        val nullAccount = accountService.getAccount(1)
+
+        assertNull(nullAccount)
     }
 
     @Test
@@ -91,10 +115,12 @@ internal class AccountServiceTest {
     }
 }
 
-fun createTestAccount(index: Int?) = Account(
-        index,
-        "Test {index}",
-        AccountType.Checking,
-        BigDecimal.valueOf(0.0),
-        BigDecimal.valueOf(1.0)
-)
+fun createTestAccount(index: Int?): Account {
+    return Account(
+            index,
+            "Test $index",
+            AccountType.Checking,
+            BigDecimal.valueOf(0.0),
+            BigDecimal.valueOf(1.0)
+    )
+}
