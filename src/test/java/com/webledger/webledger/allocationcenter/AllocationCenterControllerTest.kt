@@ -7,8 +7,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 
@@ -35,5 +34,31 @@ internal class AllocationCenterControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertIterableEquals(allocationCenters, responseEntity.body)
+    }
+
+    @Test
+    fun `return particular allocation center`() {
+        val allocationCenterId = 1
+        val allocationCenter = createTestAllocationCenter(allocationCenterId)
+
+        every { allocationCenterService.getAllocationCenter(allocationCenterId) } returns allocationCenter
+
+        val responseEntity = allocationCenterController.getAllocationCenter(allocationCenterId)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertEquals(allocationCenter, responseEntity.body)
+    }
+
+    @Test
+    fun `return a 404 response when no allocation center found`() {
+        val allocationCenterId = 1
+
+        every { allocationCenterService.getAllocationCenter(allocationCenterId) } returns null
+
+        val responseEntity = allocationCenterController.getAllocationCenter(allocationCenterId)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertNull(responseEntity.body)
+
     }
 }
