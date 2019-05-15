@@ -8,7 +8,7 @@ import javax.persistence.*
 data class AllocationCenter(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int,
+    val id: Int? = null,
 
     @Column(nullable = false)
     var name: String,
@@ -23,5 +23,5 @@ data class AllocationCenter(
     var account: Account,
 
     @OneToOne
-    var paidFrom: Account
+    var paidFrom: Account?
 )

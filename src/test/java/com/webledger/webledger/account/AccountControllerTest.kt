@@ -4,11 +4,14 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 
+@ExtendWith(MockKExtension::class)
 internal class AccountControllerTest {
 
     @MockK
