@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "be4196d0-6c59-438a-af7d-5cb8ba789adc",
+		"name": "Accounts",
+		"description": "Manipulating accounts in the Webledger",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Save Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"description": "Submitted body is of json format",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Unallocated3\",\n\t\"type\": \"Credit\",\n\t\"amount\": 0.0,\n\t\"limit\": 2000.00\n}"
+				},
+				"url": "{{url}}/accounts/save",
+				"description": "Issue an account object to the API for storage"
+			},
+			"response": []
+		},
+		{
+			"name": "List Accounts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "{{url}}/accounts",
+				"description": "Get list of all accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/accounts/:id",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"accounts",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1",
+							"description": "Account Id"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
