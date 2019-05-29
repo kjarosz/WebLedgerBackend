@@ -57,7 +57,7 @@ internal class AllocationCenterControllerTest {
 
         val responseEntity = allocationCenterController.getAllocationCenter(allocationCenterId)
 
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.statusCode)
         assertNull(responseEntity.body)
 
     }
