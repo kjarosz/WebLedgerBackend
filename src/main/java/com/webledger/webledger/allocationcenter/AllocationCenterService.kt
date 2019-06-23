@@ -11,6 +11,5 @@ class AllocationCenterService(
 ) {
     fun getAllAllocationCenters(): Iterable<AllocationCenter>? = allocationCenterRepository.findAll()
 
-    fun getAllocationCenter(id: Int) =  allocationCenterRepository.findByIdOrNull(id)
-
+    fun getAllocationCenter(id: Int): AllocationCenter? = allocationCenterRepository.findByIdOrNull(id)
 }
