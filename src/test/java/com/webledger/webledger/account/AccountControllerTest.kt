@@ -5,11 +5,13 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
+import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
 internal class AccountControllerTest {
@@ -24,7 +26,7 @@ internal class AccountControllerTest {
     fun setup() = MockKAnnotations.init(this)
 
     @Test
-    fun `retrieve all accounts`() {
+    fun `Returns list of accounts when asked for it`() {
         val accounts = Iterable {
             List(2) { createTestAccount(it) }.iterator()
         }
@@ -38,7 +40,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `retrieve particular account`() {
+    fun `Returns account when a valid accountId is given`() {
         val accountId = 1
         val account = createTestAccount(accountId)
 
@@ -51,7 +53,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `respond with 404 when account not found`() {
+    fun `Returns 404 error and null body when invalid accountId is given`() {
         val accountId = 1
 
         every { accountService.getAccount(accountId) } returns null
@@ -62,5 +64,17 @@ internal class AccountControllerTest {
         assertNull(responseEntity.body)
     }
 
+    @Test
+    fun `Returns 200 success when account is saved successfully`() {
+        val accountId = 1
+        val accountTo = AccountTo(null, "New Account", AccountType.Checking, BigDecimal.ZERO)
+        val savedAccount = createTestAccount(accountId)
 
+        every { accountService.saveAccount(accountTo) } returns savedAccount
+
+        val responseEntity = accountController.saveAccount(accountTo)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertEquals(savedAccount, responseEntity.body)
+    }
 }

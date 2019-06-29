@@ -3,7 +3,6 @@ package com.webledger.webledger.account
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.math.BigDecimal
 
 @RestController
 class AccountController(
@@ -24,5 +23,8 @@ class AccountController(
     } 
 
     @PostMapping("/accounts/save")
-    fun saveAccount(@RequestBody account: Account) :Account? = accountService.saveAccount(account)
+    fun saveAccount(@RequestBody accountTo: AccountTo) :ResponseEntity<Account?> {
+        val account = accountService.saveAccount(accountTo)
+        return ResponseEntity.ok(account)
+    }
 }
