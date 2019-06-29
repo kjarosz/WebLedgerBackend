@@ -15,15 +15,16 @@ class AccountService(
     fun getAccount(id: Int) = accountRepository.findByIdOrNull(id)
 
     fun saveAccount(accountTo: AccountTo): Account? {
-        /*
-        if (account.id != null && accountRepository.existsById(account.id)) {
-            var storedAccount = accountRepository.findById(account.id).get()
-            account.amount = storedAccount.amount
-        }
-        return accountRepository.save(account)
-        */
         val (id, name, type, limit) = accountTo
-        val account = Account(id, name, type, BigDecimal.ZERO, limit)
+        var account = if (id != null && accountRepository.existsById(id)) {
+            var storedAccount = accountRepository.findById(id).get()
+            storedAccount.name = accountTo.name
+            storedAccount.type = accountTo.type
+            storedAccount.limit = accountTo.limit
+            storedAccount
+        } else {
+            Account(id, name, type, BigDecimal.ZERO, limit)
+        }
         return accountRepository.save(account)
     }
 }

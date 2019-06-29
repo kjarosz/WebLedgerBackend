@@ -75,7 +75,6 @@ internal class AccountServiceTest {
         assertEquals(0, savedAccount?.id)
     }
 
-/*
     @Test
     fun `saves account with nonexistent id as new account`() {
         val accountTo = createTestAccountTo(0)
@@ -88,36 +87,31 @@ internal class AccountServiceTest {
 
         verify(exactly = 1) { accountRepository.save(account) }
 
-        assertEquals(0, savedAccount?.id)
-        assertEquals(account.amount, savedAccount?.amount)
+        assertEquals(account, savedAccount)
     }
 
     @Test
     fun `updates existing account without changing amount`() {
-        val accountUpdate = createTestAccount(0)
-        accountUpdate.amount = BigDecimal(2.0)
-        accountUpdate.name = "Updated name"
-        accountUpdate.limit = BigDecimal.valueOf(3.0)
+        val accountTo = AccountTo(0, "Updated name", AccountType.Savings,BigDecimal.valueOf(3.0))
 
-        val storedAccount = createTestAccount(0)
+        var storedAccount = createTestAccount(0)
+        storedAccount.amount = BigDecimal.ONE
         val optionalWrapper = Optional.of(storedAccount)
         val accountSlot = slot<Account>()
 
-        every { accountRepository.existsById(accountUpdate.id!!) } returns true
+        every { accountRepository.existsById(accountTo.accountId) } returns true
         every { accountRepository.findById(storedAccount.id) } returns optionalWrapper
-        every { accountRepository.save(capture(accountSlot)) } returns accountUpdate
+        every { accountRepository.save(capture(accountSlot)) } returns storedAccount
 
-        accountService.saveAccount(accountUpdate.copy())
-
-        assertTrue(accountSlot.isCaptured)
+        accountService.saveAccount(accountTo)
 
         val savedAccount = accountSlot.captured
+        assertEquals(accountTo.accountId, savedAccount.id)
+        assertEquals(accountTo.name, savedAccount.name)
+        assertEquals(accountTo.type, savedAccount.type)
         assertEquals(storedAccount.amount, savedAccount.amount)
-
-        savedAccount.amount = accountUpdate.amount
-        assertEquals(accountUpdate, savedAccount)
+        assertEquals(accountTo.limit, savedAccount.limit)
     }
-*/
 }
 
 fun createTestAccount(index: Int?): Account {
