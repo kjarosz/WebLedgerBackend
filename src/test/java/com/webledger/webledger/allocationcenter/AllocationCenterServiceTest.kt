@@ -26,7 +26,7 @@ internal class AllocationCenterServiceTest {
     fun setup() = MockKAnnotations.init(this)
 
     @Test
-    fun `gets all allocation centers`() {
+    fun `getAllAllocationCenters - gets all allocation centers`() {
         val allocationCenters = Iterable {
             List(2) { createTestAllocationCenter(it) }.iterator()
         }
@@ -39,7 +39,7 @@ internal class AllocationCenterServiceTest {
     }
 
     @Test
-    fun `gets particular allocation center`() {
+    fun `getAllocationCenter - gets particular allocation center`() {
         val allocationCenterId = 1
         val allocationCenter = createTestAllocationCenter(allocationCenterId)
 

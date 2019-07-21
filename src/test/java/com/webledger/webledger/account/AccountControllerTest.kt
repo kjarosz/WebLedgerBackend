@@ -26,7 +26,7 @@ internal class AccountControllerTest {
     fun setup() = MockKAnnotations.init(this)
 
     @Test
-    fun `Returns list of accounts when asked for it`() {
+    fun `getAccounts - Returns list of accounts when asked for it`() {
         val accounts = Iterable {
             List(2) { createTestAccount(it) }.iterator()
         }
@@ -40,7 +40,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `Returns account when a valid accountId is given`() {
+    fun `getAccount - Returns account when a valid accountId is given`() {
         val accountId = 1
         val account = createTestAccount(accountId)
 
@@ -53,7 +53,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `Returns 404 error and null body when invalid accountId is given`() {
+    fun `getAccount - Returns 404 error and null body when invalid accountId is given`() {
         val accountId = 1
 
         every { accountService.getAccount(accountId) } returns null
@@ -65,7 +65,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `Returns 200 success when account is saved successfully`() {
+    fun `saveAccount - Returns 200 success when account is saved successfully`() {
         val accountId = 1
         val accountTo = AccountTo(null, "New Account", AccountType.Checking, BigDecimal.ZERO)
         val savedAccount = createTestAccount(accountId)

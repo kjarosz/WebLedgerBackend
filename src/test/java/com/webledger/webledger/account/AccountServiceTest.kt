@@ -25,7 +25,7 @@ internal class AccountServiceTest {
     fun setup() = MockKAnnotations.init(this)
 
     @Test
-    fun `gets all accounts`() {
+    fun `getAllAccounts - gets all accounts`() {
         val accounts = Iterable {
             List(2) { createTestAccount(it) }.iterator()
         }
@@ -38,7 +38,7 @@ internal class AccountServiceTest {
     }
 
     @Test
-    fun `gets account with particular id`() {
+    fun `getAccount - gets account with particular id`() {
         val accountId = 1
         val existingAccount = createTestAccount(accountId)
 
@@ -50,7 +50,7 @@ internal class AccountServiceTest {
     }
 
     @Test
-    fun `gets null for nonexistent account`() {
+    fun `getAccount - gets null for nonexistent account`() {
         val accountId = 1
 
         every { accountRepository.findByIdOrNull(accountId) } returns null
@@ -61,7 +61,7 @@ internal class AccountServiceTest {
     }
 
     @Test
-    fun `saves account with null id as new account`() {
+    fun `saveAccount - saves account with null id as new account`() {
         val accountTo = createTestAccountTo(null)
         val account = createTestAccount(null)
         val newAccount = createTestAccount(0)
@@ -76,7 +76,7 @@ internal class AccountServiceTest {
     }
 
     @Test
-    fun `saves account with nonexistent id as new account`() {
+    fun `saveAccount - saves account with nonexistent id as new account`() {
         val accountTo = createTestAccountTo(0)
         val account = createTestAccount(0)
 
@@ -91,7 +91,7 @@ internal class AccountServiceTest {
     }
 
     @Test
-    fun `updates existing account without changing amount`() {
+    fun `saveAccount - updates existing account without changing amount`() {
         val accountTo = AccountTo(0, "Updated name", AccountType.Savings,BigDecimal.valueOf(3.0))
 
         var storedAccount = createTestAccount(0)

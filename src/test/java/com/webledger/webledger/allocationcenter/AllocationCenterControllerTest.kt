@@ -23,7 +23,7 @@ internal class AllocationCenterControllerTest {
     fun setup() = MockKAnnotations.init(this)
 
     @Test
-    fun `retrieve all allocation centers`() {
+    fun `getAllAllocationCenters - retrieve all allocation centers`() {
         val allocationCenters = Iterable {
             List(2) { createTestAllocationCenter(1) }.iterator()
         }
@@ -37,7 +37,7 @@ internal class AllocationCenterControllerTest {
     }
 
     @Test
-    fun `return particular allocation center`() {
+    fun `getAllocationCenter - return particular allocation center`() {
         val allocationCenterId = 1
         val allocationCenter = createTestAllocationCenter(allocationCenterId)
 
@@ -50,7 +50,7 @@ internal class AllocationCenterControllerTest {
     }
 
     @Test
-    fun `return a 404 response when no allocation center found`() {
+    fun `getAllocationCenter - return a 404 response when no allocation center found`() {
         val allocationCenterId = 1
 
         every { allocationCenterService.getAllocationCenter(allocationCenterId) } returns null
