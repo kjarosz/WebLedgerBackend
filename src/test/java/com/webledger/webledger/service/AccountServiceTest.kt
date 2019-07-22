@@ -1,5 +1,9 @@
-package com.webledger.webledger.account
+package com.webledger.webledger.service
 
+import com.webledger.webledger.entity.Account
+import com.webledger.webledger.entity.AccountType
+import com.webledger.webledger.repository.AccountRepository
+import com.webledger.webledger.transferobject.AccountTo
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -92,7 +96,7 @@ internal class AccountServiceTest {
 
     @Test
     fun `saveAccount - updates existing account without changing amount`() {
-        val accountTo = AccountTo(0, "Updated name", AccountType.Savings,BigDecimal.valueOf(3.0))
+        val accountTo = AccountTo(0, "Updated name", AccountType.Savings, BigDecimal.valueOf(3.0))
 
         var storedAccount = createTestAccount(0)
         storedAccount.amount = BigDecimal.ONE

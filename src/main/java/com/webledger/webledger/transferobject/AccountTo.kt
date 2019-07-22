@@ -1,5 +1,6 @@
-package com.webledger.webledger.account
+package com.webledger.webledger.transferobject
 
+import com.webledger.webledger.entity.AccountType
 import java.math.BigDecimal
 
 data class AccountTo(

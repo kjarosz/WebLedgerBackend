@@ -1,5 +1,7 @@
-package com.webledger.webledger.allocationcenter
+package com.webledger.webledger.controller
 
+import com.webledger.webledger.entity.AllocationCenter
+import com.webledger.webledger.service.AllocationCenterService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

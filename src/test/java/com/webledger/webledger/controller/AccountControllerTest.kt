@@ -1,11 +1,14 @@
-package com.webledger.webledger.account
+package com.webledger.webledger.controller
 
+import com.webledger.webledger.service.AccountService
+import com.webledger.webledger.transferobject.AccountTo
+import com.webledger.webledger.entity.AccountType
+import com.webledger.webledger.service.createTestAccount
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.slot
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
@@ -67,7 +70,7 @@ internal class AccountControllerTest {
     @Test
     fun `saveAccount - Returns 200 success when account is saved successfully`() {
         val accountId = 1
-        val accountTo = AccountTo(null, "New Account", AccountType.Checking, BigDecimal.ZERO)
+        val accountTo = AccountTo(null, "New Account.kt", AccountType.Checking, BigDecimal.ZERO)
         val savedAccount = createTestAccount(accountId)
 
         every { accountService.saveAccount(accountTo) } returns savedAccount

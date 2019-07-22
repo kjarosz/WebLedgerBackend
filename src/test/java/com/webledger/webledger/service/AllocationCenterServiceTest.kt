@@ -1,11 +1,14 @@
-package com.webledger.webledger.allocationcenter
+package com.webledger.webledger.service
 
-import com.webledger.webledger.account.createTestAccount
+import com.webledger.webledger.entity.AllocationCenter
+import com.webledger.webledger.repository.AllocationCenterRepository
+import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,6 +19,9 @@ import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
 internal class AllocationCenterServiceTest {
+    @MockK
+    lateinit var accountService: AccountService
+
     @MockK
     lateinit var allocationCenterRepository: AllocationCenterRepository
 
@@ -49,6 +55,32 @@ internal class AllocationCenterServiceTest {
 
         assertEquals(allocationCenter, result)
     }
+
+    @Test
+    fun `saveAllocationCenter - saves allocation center with null id as new allocation center`() {
+        val allocationCenterTo = createTestAllocationCenterTo(null, 0)
+        val allocationCenterSlot = slot<AllocationCenter>()
+        val newAllocationCenter = createTestAllocationCenter(0)
+        val account = createTestAccount(0)
+
+        every { accountService.getAccount(0) } returns account
+        every { allocationCenterRepository.save(capture(allocationCenterSlot)) } returns newAllocationCenter
+
+        val savedAllocationCenter = allocationCenterService.saveAllocationCenter(allocationCenterTo)
+
+        val allocationCenter = allocationCenterSlot.captured
+
+        assertEquals(null, allocationCenter.id)
+        assertEquals(0, savedAllocationCenter?.id)
+        assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
+    }
+
+//    @Test
+//    fun `saveAllocationCenter - null account id throws an invalid account error`() {
+//        val allocationCenterTo = createTestAllocationCenterTo(null, null)
+//
+//        assertThrows(AccountDoesNotExistException.class, () -> allocationCenterService.saveAllocationCenter(alllocationCenterTo))
+//    }
 }
 
 fun createTestAllocationCenter(id: Int?): AllocationCenter {
@@ -58,6 +90,16 @@ fun createTestAllocationCenter(id: Int?): AllocationCenter {
             BigDecimal.ZERO,
             BigDecimal.ONE,
             createTestAccount(id)!!,
+            null
+    )
+}
+
+fun createTestAllocationCenterTo(id: Int?, accountId: Int): AllocationCenterTo {
+    return AllocationCenterTo(
+            id,
+            "Allocation Center $id",
+            BigDecimal.ONE,
+            accountId,
             null
     )
 }

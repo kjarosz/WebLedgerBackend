@@ -1,11 +1,7 @@
-package com.webledger.webledger.account
+package com.webledger.webledger.entity
 
 import java.math.BigDecimal
 import javax.persistence.*
-
-enum class AccountType {
-        Checking, Savings, Credit, Loan
-}
 
 @Entity
 data class Account (
