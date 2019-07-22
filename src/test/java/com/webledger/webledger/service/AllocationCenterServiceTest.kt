@@ -1,6 +1,7 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.AllocationCenter
+import com.webledger.webledger.exceptions.AccountNotFoundException
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.mockk.MockKAnnotations
@@ -75,12 +76,34 @@ internal class AllocationCenterServiceTest {
         assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
     }
 
-//    @Test
-//    fun `saveAllocationCenter - null account id throws an invalid account error`() {
-//        val allocationCenterTo = createTestAllocationCenterTo(null, null)
-//
-//        assertThrows(AccountDoesNotExistException.class, () -> allocationCenterService.saveAllocationCenter(alllocationCenterTo))
-//    }
+    @Test(expected = AccountNotFoundException::class)
+    fun `saveAllocationCenter - nonexistent account throws an invalid account error`() {
+        val allocationCenterTo = createTestAllocationCenterTo(null, 0)
+
+        every { accountService.getAccount(0) } returns null
+
+        allocationCenterService.saveAllocationCenter(allocationCenterTo)
+    }
+
+    @Test
+    fun `saveAllocationCenter - allocation center with id that is not used yet is saved as a new allocation center`() {
+        val allocationCenterTo = createTestAllocationCenterTo(0, 0)
+        val allocationCenterSlot = slot<AllocationCenter>()
+        val newAllocationCenter = createTestAllocationCenter(0)
+        val account = createTestAccount(0)
+
+        every { accountService.getAccount(0) } returns account
+        every { allocationCenterRepository.findById(0) } returns null
+        every { allocationCenterRepository.save(capture(allocationCenterSlot)) } returns newAllocationCenter
+
+        val savedAllocationCenter = allocationCenterService.saveAllocationCenter(allocationCenterTo)
+
+        val allocationCenter = allocationCenterSlot.captured
+
+        assertEquals(0, allocationCenter.id)
+        assertEquals(0, savedAllocationCenter?.id)
+        assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
+    }
 }
 
 fun createTestAllocationCenter(id: Int?): AllocationCenter {
