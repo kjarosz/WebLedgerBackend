@@ -17,13 +17,21 @@ class TransactionService(
         @Autowired
         val allocationCenterRepository: AllocationCenterRepository
 ) {
-        fun saveTransaction(transactionTo: TransactionTo): Transaction? {
-            val (id, dateCreated, transactionType, sourceAllocationCenterId, destinationAllocationCenterId, amount, dateBankProcessed, creditAccount) = transactionTo
+    fun saveTransaction(transactionTo: TransactionTo): Transaction? {
+        val (id, dateCreated, transactionType, sourceAllocationCenterId, destinationAllocationCenterId, amount, dateBankProcessed, creditAccount) = transactionTo
+        return if (hasValidAllocationCenters(transactionTo)) {
             val sourceAllocationCenter = allocationCenterRepository.findById(sourceAllocationCenterId).orElse(null)
             val destinationAllocationCenter = allocationCenterRepository.findById(destinationAllocationCenterId).orElse(null)
             val transaction = Transaction(id, dateCreated, transactionType,
                     sourceAllocationCenter, destinationAllocationCenter,
                     amount, dateBankProcessed, creditAccount)
-            return transactionRepository.save(transaction)
+            transactionRepository.save(transaction)
+        } else {
+            null
         }
+    }
+
+    fun hasValidAllocationCenters(transactionTo: TransactionTo): Boolean {
+        return false
+    }
 }
