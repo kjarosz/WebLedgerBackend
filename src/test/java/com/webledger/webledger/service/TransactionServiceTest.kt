@@ -8,9 +8,8 @@ import com.webledger.webledger.transferobject.TransactionTo
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,6 +24,9 @@ internal class TransactionServiceTest {
 
     @MockK
     lateinit var allocationCenterRepository: AllocationCenterRepository
+
+    @MockK
+    lateinit var transactionValidationService: TransactionValidationService
 
     @InjectMockKs
     lateinit var transactionService: TransactionService
@@ -47,7 +49,7 @@ internal class TransactionServiceTest {
         every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
         every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
-        every { transactionService.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
 
@@ -71,7 +73,7 @@ internal class TransactionServiceTest {
         every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
         every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
-        every { transactionService.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
 
@@ -95,7 +97,7 @@ internal class TransactionServiceTest {
         every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
         every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
-        every { transactionService.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
 
