@@ -1,6 +1,7 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Transaction
+import com.webledger.webledger.exceptions.InvalidAllocationCenters
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
@@ -28,7 +29,7 @@ class TransactionService(
         return if (transactionValidationService.hasValidAllocationCenters(transaction)) {
             transactionRepository.save(transaction)
         } else {
-            null
+            throw InvalidAllocationCenters("Transaction does have a valid allocation center.")
         }
     }
 }

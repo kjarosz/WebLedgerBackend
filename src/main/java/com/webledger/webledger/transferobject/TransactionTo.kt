@@ -17,6 +17,6 @@ data class TransactionTo (
         var amount: BigDecimal,
 //    var category: Category,
         @JsonFormat(pattern="yyyyMMdd")
-        var dateBankProcessed: LocalDate,
+        var dateBankProcessed: LocalDate?,
         var creditAccount: Account?
 )

@@ -29,7 +29,7 @@ data class Transaction(
 //    var category: Category,
 
         @Column
-        var dateBankProcessed: LocalDate,
+        var dateBankProcessed: LocalDate?,
 
         @ManyToOne
         var creditAccount: Account?

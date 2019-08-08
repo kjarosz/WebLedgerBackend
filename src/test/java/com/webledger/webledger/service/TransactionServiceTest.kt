@@ -2,6 +2,7 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
+import com.webledger.webledger.exceptions.InvalidAllocationCenters
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
@@ -11,7 +12,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -31,25 +32,24 @@ internal class TransactionServiceTest {
     @InjectMockKs
     lateinit var transactionService: TransactionService
 
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
     }
 
     @Test
-    fun `saveTransaction - null id creates a new transaction`() {
+    fun `saveTransaction - valid transaction is saved`() {
         val transactionTo = TransactionTo(null, LocalDate.now(), TransactionType.Add, null,
-            0, BigDecimal.ZERO, LocalDate.now(), null )
+                null, BigDecimal.ZERO, null, null )
         val transactionSlot = slot<Transaction>()
         val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
-                null,
-                createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
+                null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
                 transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
 
-        every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
-        every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
+        every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
 
@@ -60,51 +60,14 @@ internal class TransactionServiceTest {
         assertEquals(BigDecimal.ZERO, savedTransaction?.amount)
     }
 
-    @Test
-    fun `saveTransaction - transaction with id new id is saved as a new transaction`() {
+    @Test(expected = InvalidAllocationCenters::class)
+    fun `saveTransaction - transaction with invalid allocation centers throws InvalidAllocationCentersException`() {
         val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add, null,
-                0, BigDecimal.ZERO, LocalDate.now(), null )
-        val transactionSlot = slot<Transaction>()
-        val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
-                null,
-                createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
-                transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
+                null, BigDecimal.ZERO, null, null )
 
-        every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
-        every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
-        every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
-        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
+        every { allocationCenterRepository.findById(any()) } returns Optional.ofNullable(null)
+        every { transactionValidationService.hasValidAllocationCenters(any()) } returns false
 
-        val savedTransaction = transactionService.saveTransaction(transactionTo)
-
-        val transaction = transactionSlot.captured
-
-        assertEquals(0, transaction.id)
-        assertEquals(0, savedTransaction?.id)
-        assertEquals(BigDecimal.ZERO, savedTransaction?.amount)
-    }
-
-    @Test
-    fun `saveTransaction - transaction with valid allocation centers is saved`() {
-        val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add, null,
-                0, BigDecimal.ZERO, LocalDate.now(), null )
-        val transactionSlot = slot<Transaction>()
-        val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
-                null,
-                createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
-                transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
-
-        every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
-        every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
-        every { allocationCenterRepository.findById(transactionTo.destinationAllocationCenterId) } returns Optional.ofNullable(newTransaction.destinationAllocationCenter)
-        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
-
-        val savedTransaction = transactionService.saveTransaction(transactionTo)
-
-        val transaction = transactionSlot.captured
-
-        assertEquals(0, transaction.id)
-        assertEquals(0, savedTransaction?.id)
-        assertEquals(BigDecimal.ZERO, savedTransaction?.amount)
+        transactionService.saveTransaction(transactionTo)
     }
 }
