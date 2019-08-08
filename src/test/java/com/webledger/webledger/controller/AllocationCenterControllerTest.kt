@@ -2,6 +2,7 @@ package com.webledger.webledger.controller
 
 import com.webledger.webledger.service.AllocationCenterService
 import com.webledger.webledger.service.createTestAllocationCenter
+import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -12,6 +13,7 @@ import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
+import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
 internal class AllocationCenterControllerTest {
@@ -63,17 +65,17 @@ internal class AllocationCenterControllerTest {
         assertNull(responseEntity.body)
 
     }
-//
-//    @Test
-//    fun `saveAllocationCenter - returns code 200 when account saved successfully`() {
-//        val allocationCenterId = 1
-//        val allocationCenterTo = AllocationCenterTo(null, "New AC", BigDecimal.ONE, 1, 1)
-//        val savedAllocationCenter = createTestAllocationCenter(allocationCenterId)
-//
-//        every { allocationCenterService.saveAllocationCenter(allocationCenterTo) } returns savedAllocationCenter
-//
-//        val responseEntity = allocationCenterController.saveAllocationCenter(allocationCenterTo)
-//
-//        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-//    }
+
+    @Test
+    fun `saveAllocationCenter - returns code 200 when account saved successfully`() {
+        val allocationCenterTo = AllocationCenterTo(null, "New AC", BigDecimal.ONE, 1, 1)
+        val savedAllocationCenter = createTestAllocationCenter(1)
+
+        every { allocationCenterService.saveAllocationCenter(allocationCenterTo) } returns savedAllocationCenter
+
+        val responseEntity = allocationCenterController.saveAllocationCenter(allocationCenterTo)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertEquals(savedAllocationCenter, responseEntity.body)
+    }
 }

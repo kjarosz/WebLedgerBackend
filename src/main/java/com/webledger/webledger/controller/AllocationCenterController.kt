@@ -2,11 +2,13 @@ package com.webledger.webledger.controller
 
 import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.service.AllocationCenterService
+import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -29,5 +31,10 @@ class AllocationCenterController(
         } else {
             ResponseEntity.notFound().build()
         }
+    }
+
+    @PostMapping("/allocationcenters")
+    fun saveAllocationCenter(allocationCenterTo: AllocationCenterTo): ResponseEntity<AllocationCenter?> {
+        return ResponseEntity.ok(allocationCenterService.saveAllocationCenter(allocationCenterTo))
     }
 }
