@@ -81,11 +81,27 @@ internal class TransactionValidationServiceTest {
     @Test
     fun `hasValidAllocationCenters - transaction with type Credit and null source is invalid`() {
         val transaction = createTestTransaction(TransactionType.Credit, null, null)
-        assertTrue(transactionValidationService.hasValidAllocationCenters(transaction))
+        assertFalse(transactionValidationService.hasValidAllocationCenters(transaction))
     }
 
     private fun createTestTransaction(type: TransactionType,
           sourceCenter: AllocationCenter?, destinationCenter: AllocationCenter?): Transaction {
         return Transaction(0, LocalDate.now(), type, sourceCenter, destinationCenter, BigDecimal.ZERO, LocalDate.now(), null)
+    }
+
+    @Test
+    fun `hasValidCreditAccount - transaction with type Credit and null creditAccount is invalid`() {
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Credit,
+                createTestAllocationCenter(0), null, BigDecimal.ZERO, LocalDate.now(),
+                null)
+        assertFalse(transactionValidationService.hasValidCreditAccount(transaction))
+    }
+
+    @Test
+    fun `hasValidCreditAccount - transaction with type Credit and existing creditAccount is valid`() {
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Credit,
+                createTestAllocationCenter(0), null, BigDecimal.ZERO, LocalDate.now(),
+                createTestAccount(0))
+        assertTrue(transactionValidationService.hasValidCreditAccount(transaction))
     }
 }

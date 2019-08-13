@@ -3,6 +3,7 @@ package com.webledger.webledger.service
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.InvalidAllocationCenters
+import com.webledger.webledger.exceptions.MissingCreditAccount
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
@@ -49,6 +50,7 @@ internal class TransactionServiceTest {
 
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationService.hasValidCreditAccount(any()) } returns true
         every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
@@ -67,6 +69,18 @@ internal class TransactionServiceTest {
 
         every { allocationCenterRepository.findById(any()) } returns Optional.ofNullable(null)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns false
+
+        transactionService.saveTransaction(transactionTo)
+    }
+
+    @Test(expected = MissingCreditAccount::class)
+    fun `saveTransaction - credit transaction without credit account throws MissingCreditAccount`() {
+        val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add, null,
+                null, BigDecimal.ZERO, null, null )
+
+        every { allocationCenterRepository.findById(any()) } returns Optional.ofNullable(null)
+        every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationService.hasValidCreditAccount(any()) } returns false
 
         transactionService.saveTransaction(transactionTo)
     }

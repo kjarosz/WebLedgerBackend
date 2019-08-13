@@ -13,4 +13,8 @@ class TransactionValidationService {
                 && transaction.destinationAllocationCenter != null)
             || (transaction.transactionType == TransactionType.Credit && transaction.sourceAllocationCenter != null)
     }
+
+    fun hasValidCreditAccount(transaction: Transaction): Boolean {
+        return transaction.transactionType != TransactionType.Credit || transaction.creditAccount != null
+    }
 }
