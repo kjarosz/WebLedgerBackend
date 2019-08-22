@@ -28,46 +28,43 @@ internal class TransactionServiceTest {
     lateinit var allocationCenterRepository: AllocationCenterRepository
 
     @MockK
+    lateinit var allocationCenterService: AllocationCenterService
+
+    @MockK
     lateinit var transactionValidationService: TransactionValidationService
 
     @InjectMockKs
     lateinit var transactionService: TransactionService
 
+    private val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add,
+            null, null,
+            BigDecimal.ZERO, null, null )
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+        every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
+        every { allocationCenterService.updateAllocationCenters(any()) } just Runs
     }
 
     @Test
     fun `saveTransaction - valid transaction is saved`() {
-        val transactionTo = TransactionTo(null, LocalDate.now(), TransactionType.Add, null,
-                null, BigDecimal.ZERO, null, null )
-        val transactionSlot = slot<Transaction>()
         val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
                 null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
                 transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
 
-        every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
         every { transactionValidationService.hasValidCreditAccount(any()) } returns true
-        every { transactionRepository.save(capture(transactionSlot)) } returns newTransaction
+        every { transactionRepository.save<Transaction>(any()) } returns newTransaction
 
         val savedTransaction = transactionService.saveTransaction(transactionTo)
 
-        val transaction = transactionSlot.captured
-
-        assertEquals(null, transaction.id)
         assertEquals(0, savedTransaction?.id)
         assertEquals(BigDecimal.ZERO, savedTransaction?.amount)
     }
 
     @Test(expected = InvalidAllocationCenters::class)
     fun `saveTransaction - transaction with invalid allocation centers throws InvalidAllocationCentersException`() {
-        val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add, null,
-                null, BigDecimal.ZERO, null, null )
-
-        every { allocationCenterRepository.findById(any()) } returns Optional.ofNullable(null)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns false
 
         transactionService.saveTransaction(transactionTo)
@@ -75,10 +72,6 @@ internal class TransactionServiceTest {
 
     @Test(expected = MissingCreditAccount::class)
     fun `saveTransaction - credit transaction without credit account throws MissingCreditAccount`() {
-        val transactionTo = TransactionTo(0, LocalDate.now(), TransactionType.Add, null,
-                null, BigDecimal.ZERO, null, null )
-
-        every { allocationCenterRepository.findById(any()) } returns Optional.ofNullable(null)
         every { transactionValidationService.hasValidAllocationCenters(any()) } returns true
         every { transactionValidationService.hasValidCreditAccount(any()) } returns false
 

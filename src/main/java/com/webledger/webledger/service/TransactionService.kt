@@ -1,6 +1,8 @@
 package com.webledger.webledger.service
 
+import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.entity.Transaction
+import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.InvalidAllocationCenters
 import com.webledger.webledger.exceptions.MissingCreditAccount
 import com.webledger.webledger.repository.AllocationCenterRepository
@@ -18,15 +20,21 @@ class TransactionService(
         val transactionValidationService: TransactionValidationService,
 
         @Autowired
-        val allocationCenterRepository: AllocationCenterRepository
+        val allocationCenterRepository: AllocationCenterRepository,
+
+        @Autowired
+        val allocationCenterService: AllocationCenterService
 ) {
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val (id, dateCreated, transactionType, sourceAllocationCenterId, destinationAllocationCenterId, amount, dateBankProcessed, creditAccount) = transactionTo
+
         val sourceAllocationCenter = allocationCenterRepository.findById(sourceAllocationCenterId).orElse(null)
         val destinationAllocationCenter = allocationCenterRepository.findById(destinationAllocationCenterId).orElse(null)
+
         val transaction = Transaction(id, dateCreated, transactionType,
                 sourceAllocationCenter, destinationAllocationCenter,
                 amount, dateBankProcessed, creditAccount)
+
         if (!transactionValidationService.hasValidAllocationCenters(transaction)) {
             throw InvalidAllocationCenters("Transaction doesn't have a valid allocation centers.")
         }
@@ -35,6 +43,9 @@ class TransactionService(
             throw MissingCreditAccount("Transaction's credit account is invalid.")
         }
 
+        allocationCenterService.updateAllocationCenters(transaction)
+
         return transactionRepository.save(transaction)
     }
+
 }

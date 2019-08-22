@@ -1,6 +1,8 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.AllocationCenter
+import com.webledger.webledger.entity.Transaction
+import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.AccountNotFoundException
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.transferobject.AllocationCenterTo
@@ -10,6 +12,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
+import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class)
 internal class AllocationCenterServiceTest {
@@ -103,6 +107,75 @@ internal class AllocationCenterServiceTest {
         assertEquals(0, allocationCenter.id)
         assertEquals(0, savedAllocationCenter?.id)
         assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
+    }
+
+    @Test
+    fun `updateAllocationCenters - add transaction adds amount to destination allocation center`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
+                null, createTestAllocationCenter(0),
+                amount, null, null )
+        transaction.destinationAllocationCenter!!.amount = BigDecimal.ZERO
+
+        allocationCenterService.updateAllocationCenters(transaction)
+
+        Assert.assertEquals(amount, transaction.destinationAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `updateAllocationCenters - transfer transaction moves amount from source to destination allocation center`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Transfer,
+                createTestAllocationCenter(0), createTestAllocationCenter(0),
+                amount, null, null )
+        transaction.sourceAllocationCenter!!.amount = amount
+        transaction.destinationAllocationCenter!!.amount = BigDecimal.ZERO
+
+        allocationCenterService.updateAllocationCenters(transaction)
+
+        Assert.assertEquals(amount, transaction.destinationAllocationCenter!!.amount)
+        Assert.assertEquals(BigDecimal.ZERO, transaction.sourceAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `updateAllocationCenters - spend transaction removes amount from source allocation center`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Spend,
+                createTestAllocationCenter(0), null,
+                amount, null, null )
+        transaction.sourceAllocationCenter!!.amount = amount
+
+        allocationCenterService.updateAllocationCenters(transaction)
+
+        Assert.assertEquals(BigDecimal.ZERO, transaction.sourceAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `updateAllocationCenters - credit transaction removes amount from source allocation center`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Credit,
+                createTestAllocationCenter(0), createTestAllocationCenter(0),
+                amount, null, null )
+        transaction.sourceAllocationCenter!!.amount = amount
+        transaction.destinationAllocationCenter!!.amount = BigDecimal.ZERO
+
+        allocationCenterService.updateAllocationCenters(transaction)
+
+        Assert.assertEquals(BigDecimal.ZERO, transaction.sourceAllocationCenter!!.amount)
+        Assert.assertEquals(amount, transaction.destinationAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `updateAllocationCenters - pay transaction removes amount from source allocation center`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Pay,
+                createTestAllocationCenter(0), null,
+                amount, null, null )
+        transaction.sourceAllocationCenter!!.amount = amount
+
+        allocationCenterService.updateAllocationCenters(transaction)
+
+        Assert.assertEquals(BigDecimal.ZERO, transaction.sourceAllocationCenter!!.amount)
     }
 }
 

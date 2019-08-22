@@ -1,6 +1,8 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.AllocationCenter
+import com.webledger.webledger.entity.Transaction
+import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.AccountNotFoundException
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.transferobject.AllocationCenterTo
@@ -29,6 +31,21 @@ class AllocationCenterService(
             allocationCenterRepository.save(allocationCenter)
         } else {
             null
+        }
+    }
+
+    fun updateAllocationCenters(transaction: Transaction) {
+        if (transaction.transactionType == TransactionType.Add ||
+                transaction.transactionType == TransactionType.Transfer ||
+                transaction.transactionType == TransactionType.Credit) {
+            transaction.destinationAllocationCenter!!.amount += transaction.amount
+        }
+
+        if (transaction.transactionType == TransactionType.Transfer ||
+                transaction.transactionType == TransactionType.Spend ||
+                transaction.transactionType == TransactionType.Credit ||
+                transaction.transactionType == TransactionType.Pay) {
+            transaction.sourceAllocationCenter!!.amount -= transaction.amount
         }
     }
 }
