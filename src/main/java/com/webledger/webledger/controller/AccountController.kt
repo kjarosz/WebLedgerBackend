@@ -1,6 +1,7 @@
 package com.webledger.webledger.controller
 
 import com.webledger.webledger.entity.Account
+import com.webledger.webledger.entity.AccountType
 import com.webledger.webledger.service.AccountService
 import com.webledger.webledger.transferobject.AccountTo
 import io.swagger.annotations.ApiOperation
@@ -41,4 +42,8 @@ class AccountController(
         logger.debug( "Saved account: $account")
         return ResponseEntity.ok(account)
     }
+
+    @ApiOperation(value = "Get AccountType enum list", response = Array<AccountType>::class)
+    @GetMapping("/accounts/types")
+    fun getAccountTypes(): ResponseEntity<Array<AccountType>> = ResponseEntity.ok(AccountType.values())
 }

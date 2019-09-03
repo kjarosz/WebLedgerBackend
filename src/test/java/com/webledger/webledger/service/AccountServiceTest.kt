@@ -103,14 +103,14 @@ internal class AccountServiceTest {
         val optionalWrapper = Optional.of(storedAccount)
         val accountSlot = slot<Account>()
 
-        every { accountRepository.existsById(accountTo.accountId) } returns true
+        every { accountRepository.existsById(accountTo.id) } returns true
         every { accountRepository.findById(storedAccount.id) } returns optionalWrapper
         every { accountRepository.save(capture(accountSlot)) } returns storedAccount
 
         accountService.saveAccount(accountTo)
 
         val savedAccount = accountSlot.captured
-        assertEquals(accountTo.accountId, savedAccount.id)
+        assertEquals(accountTo.id, savedAccount.id)
         assertEquals(accountTo.name, savedAccount.name)
         assertEquals(accountTo.type, savedAccount.type)
         assertEquals(storedAccount.amount, savedAccount.amount)

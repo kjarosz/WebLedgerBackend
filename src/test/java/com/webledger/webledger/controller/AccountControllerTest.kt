@@ -9,6 +9,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
@@ -79,5 +81,13 @@ internal class AccountControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertEquals(savedAccount, responseEntity.body)
+    }
+
+    @Test
+    fun `getAccountTypes - Returns list of account types`() {
+       val responseEntity = accountController.getAccountTypes()
+
+        assertArrayEquals(AccountType.values(), responseEntity.body)
+        assertThat(HttpStatus.OK, equalTo(responseEntity.statusCode))
     }
 }
