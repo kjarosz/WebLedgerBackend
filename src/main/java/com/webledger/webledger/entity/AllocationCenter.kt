@@ -5,22 +5,22 @@ import javax.persistence.*
 
 @Entity
 data class AllocationCenter(
-        @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int? = null,
 
-        @Column(nullable = false)
+    @Column(nullable = false)
     var name: String,
 
-        @Column
+    @Column
     var amount: BigDecimal,
 
-        @Column
+    @Column
     var goal: BigDecimal,
 
-        @OneToOne
+    @OneToOne
     var account: Account,
 
-        @OneToOne
+    @OneToOne
     var paidFrom: Account?
 )
