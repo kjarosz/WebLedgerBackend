@@ -20,10 +20,10 @@ class TransactionService(
         val transactionValidationService: TransactionValidationService,
 
         @Autowired
-        val allocationCenterRepository: AllocationCenterRepository,
+        val transactionPropagationService: TransactionPropagationService,
 
         @Autowired
-        val allocationCenterService: AllocationCenterService
+        val allocationCenterRepository: AllocationCenterRepository
 ) {
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val (id, dateCreated, transactionType, sourceAllocationCenterId, destinationAllocationCenterId, amount, dateBankProcessed, creditAccount) = transactionTo
@@ -35,50 +35,10 @@ class TransactionService(
                 sourceAllocationCenter, destinationAllocationCenter,
                 amount, dateBankProcessed, creditAccount)
 
-        if (!transactionValidationService.hasValidAllocationCenters(transaction)) {
-            throw InvalidAllocationCenters("Transaction doesn't have a valid allocation centers.")
-        }
-
-        if (!transactionValidationService.hasValidCreditAccount(transaction)) {
-            throw MissingCreditAccount("Transaction's credit account is invalid.")
-        }
-
-        updateAllocationCenters(transaction)
-        updateAccounts(transaction)
+        transactionValidationService.validateTransaction(transaction)
+        transactionPropagationService.propagateTransactionChanges(transaction)
 
         return transactionRepository.save(transaction)
     }
 
-    fun updateAllocationCenters(transaction: Transaction) {
-        if (addsToDestination(transaction)) {
-            transaction.destinationAllocationCenter!!.amount += transaction.amount
-        }
-
-        if (takesFromSource(transaction)) {
-            transaction.sourceAllocationCenter!!.amount -= transaction.amount
-        }
-    }
-
-    fun updateAccounts(transaction: Transaction) {
-        if (addsToDestination(transaction)) {
-            transaction.destinationAllocationCenter!!.account.amount += transaction.amount
-        }
-
-        if (takesFromSource(transaction)) {
-            transaction.sourceAllocationCenter!!.account.amount -= transaction.amount
-        }
-    }
-
-    fun addsToDestination(transaction: Transaction): Boolean {
-        return transaction.transactionType == TransactionType.Add
-            || transaction.transactionType == TransactionType.Transfer
-            || transaction.transactionType == TransactionType.Credit
-    }
-
-    fun takesFromSource(transaction: Transaction): Boolean {
-        return transaction.transactionType == TransactionType.Transfer
-            || transaction.transactionType == TransactionType.Spend
-            || transaction.transactionType == TransactionType.Credit
-            || transaction.transactionType == TransactionType.Pay
-    }
 }

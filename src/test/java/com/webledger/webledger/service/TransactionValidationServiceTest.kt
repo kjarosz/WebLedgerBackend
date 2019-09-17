@@ -3,10 +3,14 @@ package com.webledger.webledger.service
 import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
+import com.webledger.webledger.exceptions.InvalidAllocationCenters
+import com.webledger.webledger.exceptions.MissingCreditAccount
 import com.webledger.webledger.repository.AllocationCenterRepository
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.spyk
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -21,8 +25,30 @@ internal class TransactionValidationServiceTest {
     @InjectMocks
     var transactionValidationService: TransactionValidationService = TransactionValidationService()
 
+    lateinit var transactionValidationServiceSpy: TransactionValidationService
+
+    val transaction = createTestTransaction(TransactionType.Credit, null, null)
+
     @Before
-    fun setup() = MockKAnnotations.init(this)
+    fun setup() {
+        MockKAnnotations.init(this)
+        transactionValidationServiceSpy = spyk(transactionValidationService)
+    }
+
+    @Test(expected = InvalidAllocationCenters::class)
+    fun `validateTransaction - transaction with invalid allocation centers throws InvalidAllocationCentersException`() {
+        every { transactionValidationServiceSpy.hasValidAllocationCenters(any()) } returns false
+
+        transactionValidationServiceSpy.validateTransaction(transaction)
+    }
+
+    @Test(expected = MissingCreditAccount::class)
+    fun `validateTransaction - credit transaction without credit account throws MissingCreditAccount`() {
+        every { transactionValidationServiceSpy.hasValidAllocationCenters(any()) } returns true
+        every { transactionValidationServiceSpy.hasValidCreditAccount(any()) } returns false
+
+        transactionValidationServiceSpy.validateTransaction(transaction)
+    }
 
     @Test
     fun `hasValidAllocationCenters - transaction with type Add and existing destination center is valid`() {
