@@ -10,6 +10,8 @@ import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @Service
 class TransactionService(
@@ -26,19 +28,30 @@ class TransactionService(
         val allocationCenterRepository: AllocationCenterRepository
 ) {
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
-        val (id, dateCreated, transactionType, sourceAllocationCenterId, destinationAllocationCenterId, amount, dateBankProcessed, creditAccount) = transactionTo
-
-        val sourceAllocationCenter = allocationCenterRepository.findById(sourceAllocationCenterId).orElse(null)
-        val destinationAllocationCenter = allocationCenterRepository.findById(destinationAllocationCenterId).orElse(null)
-
-        val transaction = Transaction(id, dateCreated, transactionType,
-                sourceAllocationCenter, destinationAllocationCenter,
-                amount, dateBankProcessed, creditAccount)
-
+        val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)
         transactionPropagationService.propagateTransactionChanges(transaction)
-
         return transactionRepository.save(transaction)
     }
 
+    fun createTransactionFromTo(transactionTo: TransactionTo): Transaction {
+        val sourceAllocationCenter = allocationCenterRepository
+                .findById(transactionTo.sourceAllocationCenterId)
+                .orElse(null)
+
+        val destinationAllocationCenter = allocationCenterRepository
+                .findById(transactionTo.destinationAllocationCenterId)
+                .orElse(null)
+
+        return Transaction(
+            transactionTo.id,
+            transactionTo.dateCreated,
+            transactionTo.transactionType,
+            sourceAllocationCenter,
+            destinationAllocationCenter,
+            transactionTo.amount,
+            transactionTo.dateBankProcessed,
+            null
+        )
+    }
 }

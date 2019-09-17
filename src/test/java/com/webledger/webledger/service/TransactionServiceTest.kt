@@ -40,6 +40,10 @@ internal class TransactionServiceTest {
             null, null,
             BigDecimal.ZERO, null, null )
 
+    val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
+            null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
+            transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
@@ -49,33 +53,27 @@ internal class TransactionServiceTest {
 
     @Test
     fun `saveTransaction - valid transaction is saved`() {
-        val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
-                null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
-                transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
-
-        every { transactionValidationService.validateTransaction(any()) } just Runs
-        every { transactionPropagationService.propagateTransactionChanges(any()) } just Runs
-        every { transactionRepository.save<Transaction>(any()) } returns newTransaction
+        every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
+        every { transactionValidationService.validateTransaction(newTransaction) } just Runs
+        every { transactionPropagationService.propagateTransactionChanges(newTransaction) } just Runs
+        every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
         val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
 
-        assertEquals(0, savedTransaction?.id)
-        assertEquals(BigDecimal.ZERO, savedTransaction?.amount)
+        verify { transactionRepository.save(newTransaction) }
+        assertEquals(savedTransaction, newTransaction)
     }
 
     @Test
     fun `saveTransaction - changes are propagated`() {
-        val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
-                null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
-                transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
-
-        every { transactionValidationService.validateTransaction(any()) } just Runs
-        every { transactionPropagationService.propagateTransactionChanges(any()) } just Runs
-        every { transactionRepository.save<Transaction>(any()) } returns newTransaction
+        every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
+        every { transactionValidationService.validateTransaction(newTransaction) } just Runs
+        every { transactionPropagationService.propagateTransactionChanges(newTransaction) } just Runs
+        every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
         val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
 
-        verify { transactionPropagationService.propagateTransactionChanges(any()) }
+        verify { transactionPropagationService.propagateTransactionChanges(newTransaction) }
     }
 
     @Test(expected = Exception::class)
@@ -85,4 +83,47 @@ internal class TransactionServiceTest {
         transactionServiceSpy.saveTransaction(transactionTo)
     }
 
+    @Test
+    fun `createTransactionFromTo - creates transaction out of transfer object`() {
+        val transaction = transactionService.createTransactionFromTo(transactionTo)
+        assertEquals(transaction.id, transactionTo.id)
+        assertEquals(transaction.transactionType, transactionTo.transactionType)
+        assertEquals(transaction.dateCreated, transactionTo.dateCreated)
+        assertEquals(transaction.amount, transactionTo.amount)
+        assertEquals(transaction.dateBankProcessed, transactionTo.dateBankProcessed)
+
+//        var sourceAllocationCenter: AllocationCenter?,
+//
+//        var destinationAllocationCenter: AllocationCenter?,
+//
+//        var creditAccount: Account?
+    }
+
+    @Test
+    fun `createTransactionFromTo - assigns source allocation center from id`() {
+        val allocationCenterId = 0
+        val allocationCenter = createTestAllocationCenter(allocationCenterId)
+
+        transactionTo.sourceAllocationCenterId = allocationCenterId
+
+        every { allocationCenterRepository.findById(allocationCenterId) } returns Optional.of(allocationCenter)
+
+        val transaction = transactionService.createTransactionFromTo(transactionTo)
+
+        assertEquals(allocationCenter, transaction.sourceAllocationCenter)
+    }
+
+    @Test
+    fun `createTransactionFromTo - assigns destination allocation center from id`() {
+        val allocationCenterId = 0
+        val allocationCenter = createTestAllocationCenter(allocationCenterId)
+
+        transactionTo.destinationAllocationCenterId = allocationCenterId
+
+        every { allocationCenterRepository.findById(allocationCenterId) } returns Optional.of(allocationCenter)
+
+        val transaction = transactionService.createTransactionFromTo(transactionTo)
+
+        assertEquals(allocationCenter, transaction.destinationAllocationCenter)
+    }
 }
