@@ -43,9 +43,42 @@ class TransactionService(
             throw MissingCreditAccount("Transaction's credit account is invalid.")
         }
 
-        allocationCenterService.updateAllocationCenters(transaction)
+        updateAllocationCenters(transaction)
+        updateAccounts(transaction)
 
         return transactionRepository.save(transaction)
     }
 
+    fun updateAllocationCenters(transaction: Transaction) {
+        if (addsToDestination(transaction)) {
+            transaction.destinationAllocationCenter!!.amount += transaction.amount
+        }
+
+        if (takesFromSource(transaction)) {
+            transaction.sourceAllocationCenter!!.amount -= transaction.amount
+        }
+    }
+
+    fun updateAccounts(transaction: Transaction) {
+        if (addsToDestination(transaction)) {
+            transaction.destinationAllocationCenter!!.account.amount += transaction.amount
+        }
+
+        if (takesFromSource(transaction)) {
+            transaction.sourceAllocationCenter!!.account.amount -= transaction.amount
+        }
+    }
+
+    fun addsToDestination(transaction: Transaction): Boolean {
+        return transaction.transactionType == TransactionType.Add
+            || transaction.transactionType == TransactionType.Transfer
+            || transaction.transactionType == TransactionType.Credit
+    }
+
+    fun takesFromSource(transaction: Transaction): Boolean {
+        return transaction.transactionType == TransactionType.Transfer
+            || transaction.transactionType == TransactionType.Spend
+            || transaction.transactionType == TransactionType.Credit
+            || transaction.transactionType == TransactionType.Pay
+    }
 }

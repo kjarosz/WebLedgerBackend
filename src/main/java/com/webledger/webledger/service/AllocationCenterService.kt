@@ -34,18 +34,4 @@ class AllocationCenterService(
         }
     }
 
-    fun updateAllocationCenters(transaction: Transaction) {
-        if (transaction.transactionType == TransactionType.Add ||
-                transaction.transactionType == TransactionType.Transfer ||
-                transaction.transactionType == TransactionType.Credit) {
-            transaction.destinationAllocationCenter!!.amount += transaction.amount
-        }
-
-        if (transaction.transactionType == TransactionType.Transfer ||
-                transaction.transactionType == TransactionType.Spend ||
-                transaction.transactionType == TransactionType.Credit ||
-                transaction.transactionType == TransactionType.Pay) {
-            transaction.sourceAllocationCenter!!.amount -= transaction.amount
-        }
-    }
 }
