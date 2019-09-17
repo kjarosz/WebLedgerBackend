@@ -12,6 +12,7 @@ import io.mockk.junit5.MockKExtension
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -49,6 +50,19 @@ internal class TransactionServiceTest {
         MockKAnnotations.init(this)
         transactionServiceSpy = spyk(transactionService)
         every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
+    }
+
+    @Test
+    fun `getAllTransactions - gets all transactions`() {
+        val transactions = Iterable {
+            List(2) { createTestTransaction(it) }.iterator()
+        }
+
+        every { transactionRepository.findAll() } returns transactions
+
+        val result = transactionService.getAllTransactions()
+
+        Assertions.assertIterableEquals(transactions, result)
     }
 
     @Test
@@ -126,4 +140,17 @@ internal class TransactionServiceTest {
 
         assertEquals(allocationCenter, transaction.destinationAllocationCenter)
     }
+}
+
+fun createTestTransaction(id: Int): Transaction {
+    return Transaction(
+        id,
+        LocalDate.now(),
+        TransactionType.Add,
+        null,
+        null,
+        BigDecimal.ZERO,
+        LocalDate.now(),
+        null
+    )
 }

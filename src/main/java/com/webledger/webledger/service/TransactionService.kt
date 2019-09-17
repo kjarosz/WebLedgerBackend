@@ -27,6 +27,9 @@ class TransactionService(
         @Autowired
         val allocationCenterRepository: AllocationCenterRepository
 ) {
+
+    fun getAllTransactions(): Iterable<Transaction>? = transactionRepository.findAll()
+
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)

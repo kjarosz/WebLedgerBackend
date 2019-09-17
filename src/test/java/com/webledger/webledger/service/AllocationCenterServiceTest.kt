@@ -112,21 +112,21 @@ internal class AllocationCenterServiceTest {
 
 fun createTestAllocationCenter(id: Int?): AllocationCenter {
     return AllocationCenter(
-            id,
-            "Allocation Center $id",
-            BigDecimal.ZERO,
-            BigDecimal.ONE,
-            createTestAccount(id)!!,
-            null
+        id,
+        "Allocation Center $id",
+        BigDecimal.ZERO,
+        BigDecimal.ONE,
+        createTestAccount(id)!!,
+        null
     )
 }
 
 fun createTestAllocationCenterTo(id: Int?, accountId: Int): AllocationCenterTo {
     return AllocationCenterTo(
-            id,
-            "Allocation Center $id",
-            BigDecimal.ONE,
-            accountId,
-            null
+        id,
+        "Allocation Center $id",
+        BigDecimal.ONE,
+        accountId,
+        null
     )
 }
