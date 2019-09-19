@@ -38,13 +38,19 @@ class TransactionService(
     }
 
     fun createTransactionFromTo(transactionTo: TransactionTo): Transaction {
-        val sourceAllocationCenter = allocationCenterRepository
-                .findById(transactionTo.sourceAllocationCenterId)
-                .orElse(null)
+        var sourceAllocationCenter: AllocationCenter? = null
+        if (transactionTo.sourceAllocationCenterId != null) {
+             sourceAllocationCenter = allocationCenterRepository
+                    .findById(transactionTo.sourceAllocationCenterId)
+                    .orElse(null)
+        }
 
-        val destinationAllocationCenter = allocationCenterRepository
-                .findById(transactionTo.destinationAllocationCenterId)
-                .orElse(null)
+        var destinationAllocationCenter: AllocationCenter? = null
+        if (transactionTo.destinationAllocationCenterId != null) {
+            destinationAllocationCenter = allocationCenterRepository
+                    .findById(transactionTo.destinationAllocationCenterId)
+                    .orElse(null)
+        }
 
         return Transaction(
             transactionTo.id,

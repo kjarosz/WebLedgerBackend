@@ -85,7 +85,7 @@ internal class AccountControllerTest {
 
     @Test
     fun `getAccountTypes - Returns list of account types`() {
-       val responseEntity = accountController.getAccountTypes()
+        val responseEntity = accountController.getAccountTypes()
 
         assertArrayEquals(AccountType.values(), responseEntity.body)
         assertThat(HttpStatus.OK, equalTo(responseEntity.statusCode))

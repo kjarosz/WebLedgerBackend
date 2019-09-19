@@ -1,10 +1,13 @@
 package com.webledger.webledger.controller
 
+import com.webledger.webledger.entity.AccountType
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.service.TransactionService
-import com.webledger.webledger.service.createTestAllocationCenter
+import com.webledger.webledger.service.createTestAccount
 import com.webledger.webledger.service.createTestTransaction
+import com.webledger.webledger.transferobject.AccountTo
+import com.webledger.webledger.transferobject.TransactionTo
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -42,5 +45,28 @@ internal class TransactionControllerTest {
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(transactions, response.body)
+    }
+
+    @Test
+    fun `saveTransaction - Returns 200 success when transaction is saved`() {
+        val transactionId = 1
+        val transactionTo = TransactionTo(null, LocalDate.now(), TransactionType.Credit,
+                null, null, BigDecimal.ZERO, null, null)
+        val transaction = createTestTransaction(transactionId)
+
+        every { transactionService.saveTransaction(transactionTo) } returns transaction
+
+        val responseEntity = transactionController.saveTransaction(transactionTo)
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertEquals(transaction, responseEntity.body)
+    }
+
+    @Test
+    fun `getTransactionTypes - return list of transaction types`() {
+        val responseEntity = transactionController.getTransactionTypes()
+
+        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertArrayEquals(TransactionType.values(), responseEntity.body)
     }
 }

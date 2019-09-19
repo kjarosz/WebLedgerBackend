@@ -14,6 +14,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
@@ -43,13 +44,13 @@ internal class TransactionServiceTest {
 
     val newTransaction = Transaction(0, transactionTo.dateCreated, transactionTo.transactionType,
             null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
-            transactionTo.amount, transactionTo.dateBankProcessed, transactionTo.creditAccount )
+            transactionTo.amount, transactionTo.dateBankProcessed, createTestAccount(transactionTo.creditAccountId) )
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
         transactionServiceSpy = spyk(transactionService)
-        every { allocationCenterRepository.findById(null) } returns Optional.ofNullable(null)
+        every { allocationCenterRepository.findById(null) } throws IllegalArgumentException()
     }
 
     @Test
