@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransactionPropagationService {
-    fun propagateTransactionChanges(transaction: Transaction) {
+    fun propagateTransactionChanges(transaction: Transaction, oldTransaction: Transaction?) {
         updateAllocationCenters(transaction)
         updateAccounts(transaction)
     }
@@ -28,6 +28,18 @@ public class TransactionPropagationService {
 
         if (takesFromSource(transaction)) {
             transaction.sourceAllocationCenter!!.account.amount -= transaction.amount
+        }
+    }
+
+    fun reverseUpdateAccount(transaction: Transaction?) {
+        if (transaction != null) {
+            if (addsToDestination(transaction)) {
+                transaction.destinationAllocationCenter!!.account.amount -= transaction.amount
+            }
+
+            if (takesFromSource(transaction)) {
+                transaction.sourceAllocationCenter!!.account.amount += transaction.amount
+            }
         }
     }
 
