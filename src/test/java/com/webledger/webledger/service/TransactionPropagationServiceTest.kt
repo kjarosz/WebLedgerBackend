@@ -29,9 +29,7 @@ internal class TransactionPropagationServiceTest {
     fun `propagateTransactionChanges - updates allocation centers`() {
         val transaction = createTransactionWithType(TransactionType.Credit)
 
-        every { transactionPropagationServiceSpy.updateAllocationCenters(transaction) } just Runs
-        every { transactionPropagationServiceSpy.updateAccounts(transaction) } just Runs
-        every { transactionPropagationServiceSpy.reverseUpdateAccount(null) } just Runs
+        setupPropagateTransactionChangesMocks(transaction, null)
 
         transactionPropagationServiceSpy.propagateTransactionChanges(transaction, null)
 
@@ -39,16 +37,26 @@ internal class TransactionPropagationServiceTest {
     }
 
     @Test
+    fun `propagateTransactionChanges - reverses allocation center updates`() {
+        val transaction = createTransactionWithType(TransactionType.Credit)
+        val oldTransaction = createTransactionWithType(TransactionType.Credit)
+
+        setupPropagateTransactionChangesMocks(transaction, oldTransaction)
+
+        transactionPropagationServiceSpy.propagateTransactionChanges(transaction, oldTransaction)
+
+        verify { transactionPropagationServiceSpy.reverseUpdateAllocationCenter(oldTransaction) }
+    }
+
+    @Test
     fun `propagateTransactionChanges - updates accounts`() {
         val transaction = createTransactionWithType(TransactionType.Credit)
 
-        every { transactionPropagationServiceSpy.updateAllocationCenters(transaction) } just Runs
-        every { transactionPropagationServiceSpy.updateAccounts(transaction) } just Runs
-        every { transactionPropagationServiceSpy.reverseUpdateAccount(null) } just Runs
+        setupPropagateTransactionChangesMocks(transaction, null)
 
         transactionPropagationServiceSpy.propagateTransactionChanges(transaction, null)
 
-        verify { transactionPropagationServiceSpy.updateAccounts(transaction) }
+        verify { transactionPropagationServiceSpy.updateAccount(transaction) }
     }
 
     @Test
@@ -56,13 +64,18 @@ internal class TransactionPropagationServiceTest {
         val transaction = createTransactionWithType(TransactionType.Credit)
         val oldTransaction = createTransactionWithType(TransactionType.Credit)
 
-        every { transactionPropagationServiceSpy.updateAllocationCenters(transaction) } just Runs
-        every { transactionPropagationServiceSpy.updateAccounts(transaction) } just Runs
-        every { transactionPropagationServiceSpy.reverseUpdateAccount(oldTransaction) } just Runs
+        setupPropagateTransactionChangesMocks(transaction, oldTransaction)
 
-        transactionPropagationServiceSpy.propagateTransactionChanges(transaction, null)
+        transactionPropagationServiceSpy.propagateTransactionChanges(transaction, oldTransaction)
 
         verify { transactionPropagationServiceSpy.reverseUpdateAccount(oldTransaction) }
+    }
+
+    private fun setupPropagateTransactionChangesMocks(transaction: Transaction, oldTransaction: Transaction?) {
+        every { transactionPropagationServiceSpy.updateAllocationCenters(transaction) } just Runs
+        every { transactionPropagationServiceSpy.updateAccount(transaction) } just Runs
+        every { transactionPropagationServiceSpy.reverseUpdateAccount(oldTransaction) } just Runs
+        every { transactionPropagationServiceSpy.reverseUpdateAllocationCenter(oldTransaction) } just Runs
     }
 
     @Test
@@ -98,7 +111,44 @@ internal class TransactionPropagationServiceTest {
     }
 
     @Test
-    fun `updateAccounts - transaction that adds to destination updates destination account`() {
+    fun `reverseUpdateAllocationCenter - null transaction just passes through`() {
+        transactionPropagationService.reverseUpdateAllocationCenter(null)
+    }
+
+    @Test
+    fun `reverseUpdateAllocationCenter - transaction that adds to destination removes transaction amount from destination`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
+                null, createTestAllocationCenter(0),
+                amount, null, null )
+        transaction.destinationAllocationCenter!!.amount = BigDecimal.TEN
+
+        every { transactionPropagationServiceSpy.addsToDestination(transaction) } returns true
+        every { transactionPropagationServiceSpy.takesFromSource(transaction) } returns false
+
+        transactionPropagationServiceSpy.reverseUpdateAllocationCenter(transaction)
+
+        Assert.assertEquals(BigDecimal.ZERO, transaction.destinationAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `reverseUpdateAllocationCenter - transaction that takes from source adds transaction amount source amount`() {
+        val amount = BigDecimal.TEN
+        val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
+                createTestAllocationCenter(0), null,
+                amount, null, null )
+        transaction.sourceAllocationCenter!!.amount = BigDecimal.ZERO
+
+        every { transactionPropagationServiceSpy.addsToDestination(transaction) } returns false
+        every { transactionPropagationServiceSpy.takesFromSource(transaction) } returns true
+
+        transactionPropagationServiceSpy.reverseUpdateAllocationCenter(transaction)
+
+        Assert.assertEquals(BigDecimal.TEN, transaction.sourceAllocationCenter!!.amount)
+    }
+
+    @Test
+    fun `updateAccount - transaction that adds to destination updates destination account`() {
         val amount = BigDecimal.TEN
         val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
                 null, createTestAllocationCenter(0),
@@ -108,13 +158,13 @@ internal class TransactionPropagationServiceTest {
         every { transactionPropagationServiceSpy.addsToDestination(transaction) } returns true
         every { transactionPropagationServiceSpy.takesFromSource(transaction) } returns false
 
-        transactionPropagationServiceSpy.updateAccounts(transaction)
+        transactionPropagationServiceSpy.updateAccount(transaction)
 
         Assert.assertEquals(amount, transaction.destinationAllocationCenter!!.account.amount)
     }
 
     @Test
-    fun `updateAccounts - transaction that takes from source updates source account`() {
+    fun `updateAccount - transaction that takes from source updates source account`() {
         val amount = BigDecimal.TEN
         val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
                 createTestAllocationCenter(0), null,
@@ -124,7 +174,7 @@ internal class TransactionPropagationServiceTest {
         every { transactionPropagationServiceSpy.addsToDestination(transaction) } returns false
         every { transactionPropagationServiceSpy.takesFromSource(transaction) } returns true
 
-        transactionPropagationServiceSpy.updateAccounts(transaction)
+        transactionPropagationServiceSpy.updateAccount(transaction)
 
         Assert.assertEquals(BigDecimal.ZERO, transaction.sourceAllocationCenter!!.account.amount)
     }

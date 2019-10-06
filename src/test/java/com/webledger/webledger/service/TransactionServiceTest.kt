@@ -70,7 +70,7 @@ internal class TransactionServiceTest {
     fun `saveTransaction - valid transaction is saved`() {
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
-        every { transactionPropagationService.propagateTransactionChanges(newTransaction) } just Runs
+        every { transactionPropagationService.propagateTransactionChanges(newTransaction, null) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
         val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
@@ -83,12 +83,12 @@ internal class TransactionServiceTest {
     fun `saveTransaction - changes are propagated`() {
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
-        every { transactionPropagationService.propagateTransactionChanges(newTransaction) } just Runs
+        every { transactionPropagationService.propagateTransactionChanges(newTransaction, null) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
         val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
 
-        verify { transactionPropagationService.propagateTransactionChanges(newTransaction) }
+        verify { transactionPropagationService.propagateTransactionChanges(newTransaction, null) }
     }
 
     @Test(expected = Exception::class)

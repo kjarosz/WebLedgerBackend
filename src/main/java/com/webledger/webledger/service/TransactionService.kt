@@ -33,7 +33,7 @@ class TransactionService(
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)
-        transactionPropagationService.propagateTransactionChanges(transaction)
+        transactionPropagationService.propagateTransactionChanges(transaction, null)
         return transactionRepository.save(transaction)
     }
 

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 public class TransactionPropagationService {
     fun propagateTransactionChanges(transaction: Transaction, oldTransaction: Transaction?) {
         updateAllocationCenters(transaction)
-        updateAccounts(transaction)
+        reverseUpdateAllocationCenter(oldTransaction)
+        updateAccount(transaction)
+        reverseUpdateAccount(oldTransaction)
     }
 
     fun updateAllocationCenters(transaction: Transaction) {
@@ -21,7 +23,19 @@ public class TransactionPropagationService {
         }
     }
 
-    fun updateAccounts(transaction: Transaction) {
+    fun reverseUpdateAllocationCenter(transaction: Transaction?) {
+        if (transaction != null) {
+            if (addsToDestination(transaction)) {
+                transaction.destinationAllocationCenter!!.amount -= transaction.amount
+            }
+
+            if (takesFromSource(transaction)) {
+                transaction.sourceAllocationCenter!!.amount += transaction.amount
+            }
+        }
+    }
+
+    fun updateAccount(transaction: Transaction) {
         if (addsToDestination(transaction)) {
             transaction.destinationAllocationCenter!!.account.amount += transaction.amount
         }
