@@ -14,6 +14,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.repository.findByIdOrNull
 import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -70,32 +71,38 @@ internal class TransactionServiceTest {
     fun `saveTransaction - valid transaction is saved`() {
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
+        every { transactionServiceSpy.getExistingTransaction(transactionTo.id!!) } returns null
         every { transactionPropagationService.propagateTransactionChanges(newTransaction, null) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
         val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
 
         verify { transactionRepository.save(newTransaction) }
+
         assertEquals(savedTransaction, newTransaction)
     }
 
     @Test
     fun `saveTransaction - changes are propagated`() {
+        val oldTransaction = createTestTransaction(transactionTo.id!!)
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
-        every { transactionPropagationService.propagateTransactionChanges(newTransaction, null) } just Runs
+        every { transactionServiceSpy.getExistingTransaction(transactionTo.id!!) } returns oldTransaction
+        every { transactionPropagationService.propagateTransactionChanges(newTransaction, oldTransaction) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
-        val savedTransaction = transactionServiceSpy.saveTransaction(transactionTo)
+        transactionServiceSpy.saveTransaction(transactionTo)
 
-        verify { transactionPropagationService.propagateTransactionChanges(newTransaction, null) }
+        verify { transactionPropagationService.propagateTransactionChanges(newTransaction, oldTransaction) }
     }
 
     @Test(expected = Exception::class)
-    fun `saveTransaction - transaction with invalid allocation centers throws InvalidAllocationCentersException`() {
+    fun `saveTransaction - invalid transaction throws exception and does not save`() {
         every { transactionValidationService.validateTransaction(any()) } throws Exception()
 
         transactionServiceSpy.saveTransaction(transactionTo)
+
+        verify(exactly = 0) { transactionRepository.save<Transaction>(any()) }
     }
 
     @Test
@@ -107,10 +114,6 @@ internal class TransactionServiceTest {
         assertEquals(transaction.amount, transactionTo.amount)
         assertEquals(transaction.dateBankProcessed, transactionTo.dateBankProcessed)
 
-//        var sourceAllocationCenter: AllocationCenter?,
-//
-//        var destinationAllocationCenter: AllocationCenter?,
-//
 //        var creditAccount: Account?
     }
 
@@ -141,6 +144,37 @@ internal class TransactionServiceTest {
 
         assertEquals(allocationCenter, transaction.destinationAllocationCenter)
     }
+
+    @Test
+    fun `getExistingTransaction - existing transaction is returned`() {
+        val transactionId: Int? = 1
+        val transaction = createTestTransaction(transactionId!!)
+
+        every { transactionRepository.findByIdOrNull(transactionId!!) } returns transaction
+
+        val retrievedTransaction = transactionService.getExistingTransaction(transactionId)
+
+        assertEquals(transaction, retrievedTransaction)
+    }
+
+    @Test
+    fun `getExistingTransaction - transaction not found returns null`() {
+        val transactionId: Int? = 1
+
+        every { transactionRepository.findByIdOrNull(transactionId!!) } returns null
+
+        val retrievedTransaction = transactionService.getExistingTransaction(transactionId)
+
+        assertNull(retrievedTransaction)
+    }
+
+    @Test
+    fun `getExistingTransaction - null transaction id returns null`() {
+        val retrievedTransaction = transactionService.getExistingTransaction(null)
+
+        assertNull(retrievedTransaction)
+    }
+
 }
 
 fun createTestTransaction(id: Int): Transaction {

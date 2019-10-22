@@ -9,6 +9,7 @@ import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -33,7 +34,8 @@ class TransactionService(
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)
-        transactionPropagationService.propagateTransactionChanges(transaction, null)
+        val oldTransaction = getExistingTransaction(transactionTo.id)
+        transactionPropagationService.propagateTransactionChanges(transaction, oldTransaction)
         return transactionRepository.save(transaction)
     }
 
@@ -63,4 +65,10 @@ class TransactionService(
             null
         )
     }
+
+    fun getExistingTransaction(transactionId: Int?): Transaction? =
+        if(transactionId != null)
+            transactionRepository.findByIdOrNull(transactionId!!)
+        else
+            null
 }
