@@ -48,6 +48,30 @@ internal class TransactionControllerTest {
     }
 
     @Test
+    fun `getTransaction - Returns 200 success and transaction when transaction is found`() {
+        val transactionId = 1
+        val transaction = createTestTransaction(transactionId)
+
+        every { transactionService.getTransaction(transactionId) } returns transaction
+
+        val response = transactionController.getTransaction(transactionId)
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(transaction, response.body)
+    }
+
+    @Test
+    fun `getTransaction - Returns 404 when transaction is null`() {
+        val transactionId = 1
+
+        every { transactionService.getTransaction(transactionId) } returns null
+
+        val response = transactionController.getTransaction(transactionId)
+
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+    }
+
+    @Test
     fun `saveTransaction - Returns 200 success when transaction is saved`() {
         val transactionId = 1
         val transactionTo = TransactionTo(null, LocalDate.now(), TransactionType.Credit,

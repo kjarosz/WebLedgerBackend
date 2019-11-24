@@ -25,6 +25,15 @@ class TransactionController(
         return ResponseEntity.ok(TransactionType.values())
     }
 
+    @GetMapping("/transactions/{id}")
+    fun getTransaction(@PathVariable("id") transactionId: Int): ResponseEntity<Transaction> {
+        val transaction = transactionService.getTransaction(transactionId)
+        return if (transaction == null)
+            ResponseEntity.notFound().build()
+        else
+            ResponseEntity.ok(transaction)
+    }
+
     @PostMapping("/transactions/save")
     fun saveTransaction(@RequestBody transactionTo: TransactionTo): ResponseEntity<Transaction> {
         return ResponseEntity.ok(transactionService.saveTransaction(transactionTo))

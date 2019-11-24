@@ -5,7 +5,7 @@ import com.webledger.webledger.entity.TransactionType
 import org.springframework.stereotype.Service;
 
 @Service
-public class TransactionPropagationService {
+class TransactionPropagationService {
     fun propagateTransactionChanges(transaction: Transaction, oldTransaction: Transaction?) {
         updateAllocationCenters(transaction)
         reverseUpdateAllocationCenter(oldTransaction)

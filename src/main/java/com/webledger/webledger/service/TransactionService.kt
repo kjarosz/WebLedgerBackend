@@ -2,17 +2,12 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.entity.Transaction
-import com.webledger.webledger.entity.TransactionType
-import com.webledger.webledger.exceptions.InvalidAllocationCenters
-import com.webledger.webledger.exceptions.MissingCreditAccount
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.time.LocalDate
 
 @Service
 class TransactionService(
@@ -31,10 +26,11 @@ class TransactionService(
 
     fun getAllTransactions(): Iterable<Transaction>? = transactionRepository.findAll()
 
+
     fun saveTransaction(transactionTo: TransactionTo): Transaction? {
         val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)
-        val oldTransaction = getExistingTransaction(transactionTo.id)
+        val oldTransaction = getTransaction(transactionTo.id)
         transactionPropagationService.propagateTransactionChanges(transaction, oldTransaction)
         return transactionRepository.save(transaction)
     }
@@ -66,7 +62,7 @@ class TransactionService(
         )
     }
 
-    fun getExistingTransaction(transactionId: Int?): Transaction? =
+    fun getTransaction(transactionId: Int?): Transaction? =
         if(transactionId != null)
             transactionRepository.findByIdOrNull(transactionId!!)
         else

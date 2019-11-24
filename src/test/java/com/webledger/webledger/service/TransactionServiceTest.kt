@@ -68,10 +68,19 @@ internal class TransactionServiceTest {
     }
 
     @Test
+    fun `getTransaction - return found transaction`() {
+        every { transactionRepository.findByIdOrNull(newTransaction.id!!) } returns newTransaction
+
+        val returnedTransaction = transactionService.getTransaction(newTransaction.id)
+
+        assertEquals(newTransaction, returnedTransaction)
+    }
+
+    @Test
     fun `saveTransaction - valid transaction is saved`() {
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
-        every { transactionServiceSpy.getExistingTransaction(transactionTo.id!!) } returns null
+        every { transactionServiceSpy.getTransaction(transactionTo.id!!) } returns null
         every { transactionPropagationService.propagateTransactionChanges(newTransaction, null) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
@@ -87,7 +96,7 @@ internal class TransactionServiceTest {
         val oldTransaction = createTestTransaction(transactionTo.id!!)
         every { transactionServiceSpy.createTransactionFromTo(transactionTo) } returns newTransaction
         every { transactionValidationService.validateTransaction(newTransaction) } just Runs
-        every { transactionServiceSpy.getExistingTransaction(transactionTo.id!!) } returns oldTransaction
+        every { transactionServiceSpy.getTransaction(transactionTo.id!!) } returns oldTransaction
         every { transactionPropagationService.propagateTransactionChanges(newTransaction, oldTransaction) } just Runs
         every { transactionRepository.save<Transaction>(newTransaction) } returns newTransaction
 
@@ -152,7 +161,7 @@ internal class TransactionServiceTest {
 
         every { transactionRepository.findByIdOrNull(transactionId!!) } returns transaction
 
-        val retrievedTransaction = transactionService.getExistingTransaction(transactionId)
+        val retrievedTransaction = transactionService.getTransaction(transactionId)
 
         assertEquals(transaction, retrievedTransaction)
     }
@@ -163,14 +172,14 @@ internal class TransactionServiceTest {
 
         every { transactionRepository.findByIdOrNull(transactionId!!) } returns null
 
-        val retrievedTransaction = transactionService.getExistingTransaction(transactionId)
+        val retrievedTransaction = transactionService.getTransaction(transactionId)
 
         assertNull(retrievedTransaction)
     }
 
     @Test
     fun `getExistingTransaction - null transaction id returns null`() {
-        val retrievedTransaction = transactionService.getExistingTransaction(null)
+        val retrievedTransaction = transactionService.getTransaction(null)
 
         assertNull(retrievedTransaction)
     }
