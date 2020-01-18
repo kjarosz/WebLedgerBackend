@@ -1,8 +1,8 @@
-package com.webledger.webledger.service;
+package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service
 
 @Service
 class TransactionPropagationService {
