@@ -38,4 +38,10 @@ class TransactionController(
     fun saveTransaction(@RequestBody transactionTo: TransactionTo): ResponseEntity<Transaction> {
         return ResponseEntity.ok(transactionService.saveTransaction(transactionTo))
     }
+
+    @DeleteMapping("/transactions/{id}")
+    fun deleteTransaction(@PathVariable("id") transactionId: Int): ResponseEntity<String> {
+        transactionService.deleteTransaction(transactionId)
+        return ResponseEntity.noContent().build()
+    }
 }

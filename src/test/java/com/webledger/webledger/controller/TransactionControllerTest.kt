@@ -9,10 +9,12 @@ import com.webledger.webledger.service.createTestTransaction
 import com.webledger.webledger.transferobject.AccountTo
 import com.webledger.webledger.transferobject.TransactionTo
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
@@ -92,5 +94,16 @@ internal class TransactionControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertArrayEquals(TransactionType.values(), responseEntity.body)
+    }
+
+    @Test
+    fun `deleteTransaction - return no content on successful delete`() {
+        val transactionId = 1
+
+        every { transactionService.deleteTransaction(transactionId) } just Runs
+
+        val responseEntity = transactionController.deleteTransaction(transactionId)
+
+        assertEquals(responseEntity.statusCode, HttpStatus.NO_CONTENT)
     }
 }
