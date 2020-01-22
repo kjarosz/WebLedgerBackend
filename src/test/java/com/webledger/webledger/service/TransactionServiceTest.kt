@@ -2,6 +2,7 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
+import com.webledger.webledger.exceptions.TransactionNotFoundException
 import com.webledger.webledger.repository.AllocationCenterRepository
 import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.TransactionTo
@@ -122,8 +123,6 @@ internal class TransactionServiceTest {
         assertEquals(transaction.dateCreated, transactionTo.dateCreated)
         assertEquals(transaction.amount, transactionTo.amount)
         assertEquals(transaction.dateBankProcessed, transactionTo.dateBankProcessed)
-
-//        var creditAccount: Account?
     }
 
     @Test
@@ -184,6 +183,50 @@ internal class TransactionServiceTest {
         assertNull(retrievedTransaction)
     }
 
+    @Test(expected = TransactionNotFoundException::class)
+    fun `deleteTransaction - transaction not found throws exception`() {
+        val transactionId = 1
+
+        every { transactionServiceSpy.getTransaction(transactionId) } returns null
+
+        transactionServiceSpy.deleteTransaction(transactionId)
+    }
+
+    @Test
+    fun `deleteTransaction - changes are propagated`() {
+        val transactionId = 1
+        val transaction = createTestTransaction(transactionId)
+        transaction.amount = BigDecimal.ONE
+        val zeroTransaction = slot<Transaction>()
+
+        every { transactionServiceSpy.getTransaction(transactionId) } returns transaction
+        every {
+            transactionPropagationService.propagateTransactionChanges(capture(zeroTransaction), transaction)
+        } just Runs
+        every { transactionRepository.delete(transaction) } just Runs
+
+        transactionServiceSpy.deleteTransaction(transactionId)
+
+        assertEquals(zeroTransaction.captured.amount, BigDecimal.ZERO)
+    }
+
+    @Test
+    fun `deleteTransaction - transaction is deleted`() {
+        val transactionId = 1
+        val transaction = createTestTransaction(transactionId)
+        transaction.amount = BigDecimal.ONE
+        val zeroTransaction = slot<Transaction>()
+
+        every { transactionServiceSpy.getTransaction(transactionId) } returns transaction
+        every {
+            transactionPropagationService.propagateTransactionChanges(capture(zeroTransaction), transaction)
+        } just Runs
+        every { transactionRepository.delete(transaction) } just Runs
+
+        transactionServiceSpy.deleteTransaction(transactionId)
+
+        verify { transactionRepository.delete(transaction) }
+    }
 }
 
 fun createTestTransaction(id: Int): Transaction {
