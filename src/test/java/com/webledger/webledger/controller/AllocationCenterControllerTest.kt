@@ -4,10 +4,12 @@ import com.webledger.webledger.service.AllocationCenterService
 import com.webledger.webledger.service.createTestAllocationCenter
 import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
@@ -77,5 +79,16 @@ internal class AllocationCenterControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertEquals(savedAllocationCenter, responseEntity.body)
+    }
+
+    @Test
+    fun `deleteAllocationCenter - returns code NO_CONTENT after calling delete service`() {
+        val id = 1
+
+        every { allocationCenterService.deleteAllocationCenter(id) } just Runs
+
+        val responseEntity = allocationCenterController.deleteAllocationCenter(id)
+
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.statusCode)
     }
 }

@@ -8,20 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@RestController
+@RestController("/allocationcenters")
 @CrossOrigin(origins = [ "http://localhost:4200" ])
 class AllocationCenterController(
         @Autowired
         val allocationCenterService: AllocationCenterService
 ) {
     @ApiOperation(value = "Get a list of all allocation centers", response = AllocationCenter::class)
-    @GetMapping("/allocationcenters")
+    @GetMapping()
     fun getAllAllocationCenters(): ResponseEntity<Iterable<AllocationCenter>?> {
         return ResponseEntity.ok(allocationCenterService.getAllAllocationCenters())
     }
 
     @ApiOperation(value = "Get an allocation center by id", response = AllocationCenter::class)
-    @GetMapping("/allocationcenters/{id}")
+    @GetMapping("/{id}")
     fun getAllocationCenter(@PathVariable("id") id: Int): ResponseEntity<AllocationCenter?> {
         val allocationCenter = allocationCenterService.getAllocationCenter(id)
         return if (allocationCenter != null) {
@@ -32,8 +32,15 @@ class AllocationCenterController(
     }
 
     @ApiOperation(value = "Save allocation center", response = AllocationCenter::class)
-    @PostMapping("/allocationcenters/save")
+    @PostMapping()
     fun saveAllocationCenter(@RequestBody allocationCenterTo: AllocationCenterTo): ResponseEntity<AllocationCenter?> {
         return ResponseEntity.ok(allocationCenterService.saveAllocationCenter(allocationCenterTo))
+    }
+
+    @ApiOperation(value = "Delete allocation center")
+    @DeleteMapping("/{id}")
+    fun deleteAllocationCenter(@PathVariable("id") id: Int): ResponseEntity<Void> {
+        allocationCenterService.deleteAllocationCenter(id)
+        return ResponseEntity.noContent().build()
     }
 }
