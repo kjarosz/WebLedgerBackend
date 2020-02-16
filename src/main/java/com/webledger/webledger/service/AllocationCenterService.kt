@@ -1,12 +1,10 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.AllocationCenter
-import com.webledger.webledger.entity.Transaction
-import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.AccountNotFoundException
 import com.webledger.webledger.exceptions.AllocationCenterNotFoundException
+import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AllocationCenterRepository
-import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.AllocationCenterTo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -26,12 +24,12 @@ class AllocationCenterService(
     fun getAllocationCenter(id: Int): AllocationCenter? = allocationCenterRepository.findByIdOrNull(id)
 
     fun saveAllocationCenter(allocationCenterTo: AllocationCenterTo): AllocationCenter? {
-        val (id, name, goal, accountId ) = allocationCenterTo
+        val (id, name, goal, accountId) = allocationCenterTo
         val account = accountService.getAccount(accountId)
         return if (account == null) {
-            throw AccountNotFoundException("Account with ${allocationCenterTo.id} could not be found." )
+            throw AccountNotFoundException("Account with ${allocationCenterTo.id} could not be found.")
         } else if (id == null || !allocationCenterRepository.findById(id).isPresent) {
-            val allocationCenter = AllocationCenter(id, name, BigDecimal.ZERO, goal, account!!, null, null, null)
+            val allocationCenter = AllocationCenter(id, name, BigDecimal.ZERO, goal, account, null, null, null)
             allocationCenterRepository.save(allocationCenter)
         } else {
             null
@@ -40,9 +38,11 @@ class AllocationCenterService(
 
     fun deleteAllocationCenter(id: Int) {
         val allocationCenter = allocationCenterRepository.findByIdOrNull(id)
-        if (allocationCenter == null) {
-            throw AllocationCenterNotFoundException("Allocation center with id $id could not be found")
+                ?: throw AllocationCenterNotFoundException("Allocation center with id $id could not be found")
+        if (!allocationCenter.sourcesTransactions.isNullOrEmpty()) {
+            throw DeleteEntityWithChildrenException("Allocation center with id $id has transactions associated with it and cannot be deleted")
         }
+        allocationCenterRepository.delete(allocationCenter)
     }
 
 }
