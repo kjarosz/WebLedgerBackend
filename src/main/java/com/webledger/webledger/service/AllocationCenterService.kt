@@ -12,13 +12,9 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
 @Service
-class AllocationCenterService(
-        @Autowired
-        val accountService: AccountService,
+class AllocationCenterService(@Autowired val accountService: AccountService,
 
-        @Autowired
-        val allocationCenterRepository: AllocationCenterRepository
-) {
+                              @Autowired val allocationCenterRepository: AllocationCenterRepository) {
     fun getAllAllocationCenters(): Iterable<AllocationCenter>? = allocationCenterRepository.findAll()
 
     fun getAllocationCenter(id: Int): AllocationCenter? = allocationCenterRepository.findByIdOrNull(id)
@@ -37,12 +33,12 @@ class AllocationCenterService(
     }
 
     fun deleteAllocationCenter(id: Int) {
-        val allocationCenter = allocationCenterRepository.findByIdOrNull(id)
-                ?: throw AllocationCenterNotFoundException("Allocation center with id $id could not be found")
-        if (!allocationCenter.sourcesTransactions.isNullOrEmpty()) {
-            throw DeleteEntityWithChildrenException("Allocation center with id $id has transactions associated with it and cannot be deleted")
+        val allocationCenter = allocationCenterRepository.findByIdOrNull(id) ?: throw AllocationCenterNotFoundException(
+                "Allocation center with id $id could not be found")
+        if (!allocationCenter.sourcesTransactions.isNullOrEmpty() || !allocationCenter.destinationTransactions.isNullOrEmpty()) {
+            throw DeleteEntityWithChildrenException(
+                    "Allocation center with id $id has transactions associated with it and cannot be deleted")
         }
         allocationCenterRepository.delete(allocationCenter)
     }
-
 }

@@ -138,6 +138,17 @@ internal class AllocationCenterServiceTest {
 
         allocationCenterService.deleteAllocationCenter(id)
     }
+
+    @Test(expected = DeleteEntityWithChildrenException::class)
+    fun `deleteAllocationCenter - allocation center with destination transactions throws exception`() {
+        val id = 1
+        val allocationCenter = createTestAllocationCenter(id)
+        allocationCenter.destinationTransactions = listOf(createTestTransaction(id))
+
+        every { allocationCenterRepository.findByIdOrNull(id) } returns allocationCenter
+
+        allocationCenterService.deleteAllocationCenter(id)
+    }
 }
 
 fun createTestAllocationCenter(id: Int?): AllocationCenter {
