@@ -4,14 +4,14 @@ import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.entity.Transaction
 import com.webledger.webledger.entity.TransactionType
 import com.webledger.webledger.exceptions.AccountNotFoundException
+import com.webledger.webledger.exceptions.AllocationCenterNotFoundException
 import com.webledger.webledger.repository.AllocationCenterRepository
+import com.webledger.webledger.repository.TransactionRepository
 import com.webledger.webledger.transferobject.AllocationCenterTo
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.slot
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.*
 
 @ExtendWith(MockKExtension::class)
 internal class AllocationCenterServiceTest {
@@ -97,7 +98,7 @@ internal class AllocationCenterServiceTest {
         val account = createTestAccount(0)
 
         every { accountService.getAccount(0) } returns account
-        every { allocationCenterRepository.findById(0) } returns null
+        every { allocationCenterRepository.findById(0) } returns Optional.empty()
         every { allocationCenterRepository.save(capture(allocationCenterSlot)) } returns newAllocationCenter
 
         val savedAllocationCenter = allocationCenterService.saveAllocationCenter(allocationCenterTo)
@@ -108,6 +109,27 @@ internal class AllocationCenterServiceTest {
         assertEquals(0, savedAllocationCenter?.id)
         assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
     }
+
+    @Test(expected = AllocationCenterNotFoundException::class)
+    fun `deleteAllocationCenter - non existent allocation center throws exception`() {
+        val id = 1
+        val allocationCenter = createTestAllocationCenter(id)
+
+        every { allocationCenterRepository.findByIdOrNull(id) } returns allocationCenter
+
+        allocationCenterService.deleteAllocationCenter(id)
+    }
+
+    @Test
+    fun `deleteAllocationCenter - valid allocation center is deleted`() {
+        val id = 1
+        val allocationCenter = createTestAllocationCenter(id)
+
+        every { allocationCenterRepository.findByIdOrNull(id) } returns allocationCenter
+        every { allocationCenterRepository.delete(allocationCenter) } just Runs
+
+        allocationCenterService.deleteAllocationCenter(id)
+    }
 }
 
 fun createTestAllocationCenter(id: Int?): AllocationCenter {
@@ -117,6 +139,8 @@ fun createTestAllocationCenter(id: Int?): AllocationCenter {
         BigDecimal.ZERO,
         BigDecimal.ONE,
         createTestAccount(id)!!,
+        null,
+        null,
         null
     )
 }

@@ -22,5 +22,11 @@ data class AllocationCenter(
     var account: Account,
 
     @OneToOne
-    var paidFrom: Account?
+    var paidFrom: Account?,
+
+    @OneToMany(mappedBy = "sourceAllocationCenter")
+    var sourcesTransactions: List<Transaction>?,
+
+    @OneToMany(mappedBy = "destinationAllocationCenter")
+    var destinationTransactions: List<Transaction>?
 )
