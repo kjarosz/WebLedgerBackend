@@ -12,17 +12,18 @@ import org.apache.logging.log4j.kotlin.Logging;
 
 @RestController
 @CrossOrigin(origins = [ "http://localhost:4200" ])
+@RequestMapping("/accounts")
 class AccountController(
         @Autowired
         val accountService: AccountService
 ): Logging
 {
     @ApiOperation(value = "Get list of all accounts", response = Array<Account>::class)
-    @GetMapping("/accounts")
+    @GetMapping("/")
     fun getAccounts(): ResponseEntity<Iterable<Account>?> = ResponseEntity.ok(accountService.getAllAccounts())
 
     @ApiOperation(value = "Get account by id", response = Account::class)
-    @GetMapping("/accounts/{id}")
+    @GetMapping("/{id}")
     fun getAccount(@PathVariable("id") id: Int): ResponseEntity<Account?> {
         logger.info { "Fetching account with id: $id" }
         val account = accountService.getAccount(id)
@@ -35,7 +36,7 @@ class AccountController(
     } 
 
     @ApiOperation(value = "Save an account, new or update", response = Account::class)
-    @PostMapping("/accounts/save")
+    @PostMapping
     fun saveAccount(@RequestBody accountTo: AccountTo) :ResponseEntity<Account?> {
         logger.info("Saving account: $accountTo")
         val account = accountService.saveAccount(accountTo)
@@ -44,6 +45,15 @@ class AccountController(
     }
 
     @ApiOperation(value = "Get AccountType enum list", response = Array<AccountType>::class)
-    @GetMapping("/accounts/types")
+    @GetMapping("/types")
     fun getAccountTypes(): ResponseEntity<Array<AccountType>> = ResponseEntity.ok(AccountType.values())
+
+    @ApiOperation(value = "Delete an account")
+    @DeleteMapping("/{id}")
+    fun deleteAccount(@PathVariable("id") id: Int): ResponseEntity<Void> {
+        logger.info("Deleting account: $id")
+        accountService.deleteAccount(id)
+        logger.info("Account deleted: $id")
+        return ResponseEntity.noContent().build()
+    }
 }

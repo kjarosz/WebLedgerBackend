@@ -4,8 +4,7 @@ import com.webledger.webledger.service.AccountService
 import com.webledger.webledger.transferobject.AccountTo
 import com.webledger.webledger.entity.AccountType
 import com.webledger.webledger.service.createTestAccount
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -16,6 +15,7 @@ import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
@@ -81,6 +81,19 @@ internal class AccountControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
         assertEquals(savedAccount, responseEntity.body)
+    }
+
+    @Test
+    fun `deleteAccount - Returns 204 no content when account is deleted successfully`() {
+        val id = 1
+
+        every { accountService.deleteAccount(id) } just Runs
+
+        val responseEntity: ResponseEntity<Void> = accountController.deleteAccount(id)
+
+        verify(exactly = 1) { accountService.deleteAccount(id) }
+
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.statusCode)
     }
 
     @Test
