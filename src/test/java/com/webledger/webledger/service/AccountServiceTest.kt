@@ -2,6 +2,8 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Account
 import com.webledger.webledger.entity.AccountType
+import com.webledger.webledger.exceptions.AccountNotFoundException
+import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo
 import io.mockk.*
@@ -116,6 +118,39 @@ internal class AccountServiceTest {
         assertEquals(storedAccount.amount, savedAccount.amount)
         assertEquals(accountTo.limit, savedAccount.limit)
     }
+
+    @Test(expected = AccountNotFoundException::class)
+    fun `deleteAccount - non-existing account throws exception`() {
+        val id = 1
+
+        every { accountRepository.findByIdOrNull(id) } returns null
+
+        accountService.deleteAccount(id)
+    }
+
+    @Test(expected = DeleteEntityWithChildrenException::class)
+    fun `deleteAccount - account with associated allocation centers throws exception`() {
+        val id = 1
+        val account = createTestAccount(id)
+        account.allocationCenters = listOf(createTestAllocationCenter(id))
+
+        every { accountRepository.findByIdOrNull(id) } returns account
+
+        accountService.deleteAccount(id)
+    }
+
+    @Test
+    fun `deleteAccount - valid account is deleted`() {
+        val id = 1
+        val account = createTestAccount(id)
+
+        every { accountRepository.findByIdOrNull(id) } returns account
+        every { accountRepository.delete(account) } just Runs
+
+        accountService.deleteAccount(id)
+
+        verify(exactly = 1) { accountRepository.delete(account) }
+    }
 }
 
 fun createTestAccount(index: Int?): Account {
@@ -124,7 +159,8 @@ fun createTestAccount(index: Int?): Account {
             "Test $index",
             AccountType.Checking,
             BigDecimal.ZERO,
-            BigDecimal.ONE
+            BigDecimal.ONE,
+            emptyList()
     )
 }
 

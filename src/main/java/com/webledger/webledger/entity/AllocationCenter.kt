@@ -18,10 +18,10 @@ data class AllocationCenter(
     @Column
     var goal: BigDecimal,
 
-    @OneToOne
+    @ManyToOne
     var account: Account,
 
-    @OneToOne
+    @ManyToOne
     var paidFrom: Account?,
 
     @OneToMany(mappedBy = "sourceAllocationCenter")

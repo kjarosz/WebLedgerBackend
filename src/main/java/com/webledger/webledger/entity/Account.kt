@@ -20,5 +20,8 @@ data class Account (
         var amount: BigDecimal = BigDecimal.ZERO,
 
         @Column(name = "credit_limit", nullable = true)
-        var limit: BigDecimal
+        var limit: BigDecimal,
+
+        @OneToMany(mappedBy="account")
+        var allocationCenters: List<AllocationCenter>
 )
