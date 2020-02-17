@@ -8,14 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@RestController("/allocationcenters")
+@RestController
 @CrossOrigin(origins = [ "http://localhost:4200" ])
+@RequestMapping("/allocationcenters")
 class AllocationCenterController(
         @Autowired
         val allocationCenterService: AllocationCenterService
 ) {
     @ApiOperation(value = "Get a list of all allocation centers", response = AllocationCenter::class)
-    @GetMapping()
+    @GetMapping
     fun getAllAllocationCenters(): ResponseEntity<Iterable<AllocationCenter>?> {
         return ResponseEntity.ok(allocationCenterService.getAllAllocationCenters())
     }
@@ -32,7 +33,7 @@ class AllocationCenterController(
     }
 
     @ApiOperation(value = "Save allocation center", response = AllocationCenter::class)
-    @PostMapping()
+    @PostMapping
     fun saveAllocationCenter(@RequestBody allocationCenterTo: AllocationCenterTo): ResponseEntity<AllocationCenter?> {
         return ResponseEntity.ok(allocationCenterService.saveAllocationCenter(allocationCenterTo))
     }
