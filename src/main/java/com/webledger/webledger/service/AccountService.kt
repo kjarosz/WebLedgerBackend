@@ -1,7 +1,7 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Account
-import com.webledger.webledger.exceptions.AccountNotFoundException
+import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
 import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo
@@ -34,8 +34,8 @@ class AccountService(
     }
 
     fun deleteAccount(id: Int) {
-        val account = (accountRepository.findByIdOrNull(id)
-                ?: throw AccountNotFoundException("Could not find account for id $id"))
+        val account = accountRepository.findByIdOrNull(id)
+                ?: throw AccountNotFoundException("Could not find account for id $id")
         if (account.allocationCenters.isNotEmpty()) {
             throw DeleteEntityWithChildrenException("Cannot delete account with id $id because of associated allocation centers")
         }

@@ -2,7 +2,7 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Account
 import com.webledger.webledger.entity.AccountType
-import com.webledger.webledger.exceptions.AccountNotFoundException
+import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
 import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo

@@ -9,17 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.apache.logging.log4j.kotlin.Logging;
+import org.springframework.web.util.UriComponentsBuilder
 
 @RestController
-@CrossOrigin(origins = [ "http://localhost:4200" ])
-@RequestMapping("/accounts")
+@CrossOrigin(origins = ["http://localhost:4200"])
+@RequestMapping("accounts")
 class AccountController(
         @Autowired
         val accountService: AccountService
-): Logging
-{
+) : Logging {
     @ApiOperation(value = "Get list of all accounts", response = Array<Account>::class)
-    @GetMapping("/")
+    @GetMapping
     fun getAccounts(): ResponseEntity<Iterable<Account>?> = ResponseEntity.ok(accountService.getAllAccounts())
 
     @ApiOperation(value = "Get account by id", response = Account::class)
@@ -33,15 +33,19 @@ class AccountController(
         } else {
             ResponseEntity.notFound().build()
         }
-    } 
+    }
 
     @ApiOperation(value = "Save an account, new or update", response = Account::class)
     @PostMapping
-    fun saveAccount(@RequestBody accountTo: AccountTo) :ResponseEntity<Account?> {
+    fun saveAccount(@RequestBody accountTo: AccountTo): ResponseEntity<Account?> {
         logger.info("Saving account: $accountTo")
         val account = accountService.saveAccount(accountTo)
-        logger.debug( "Saved account: $account")
-        return ResponseEntity.ok(account)
+        logger.debug("Saved account: $account")
+        val accountUri = UriComponentsBuilder
+                .fromUriString("/accounts/{id}")
+                .buildAndExpand(mapOf(Pair("id", account?.id)))
+                .toUri()
+        return ResponseEntity.created(accountUri).build()
     }
 
     @ApiOperation(value = "Get AccountType enum list", response = Array<AccountType>::class)

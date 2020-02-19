@@ -8,6 +8,7 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -70,7 +71,7 @@ internal class AccountControllerTest {
     }
 
     @Test
-    fun `saveAccount - Returns 200 success when account is saved successfully`() {
+    fun `saveAccount - Returns 201 success when account is saved successfully`() {
         val accountId = 1
         val accountTo = AccountTo(null, "New Account.kt", AccountType.Checking, BigDecimal.ZERO)
         val savedAccount = createTestAccount(accountId)
@@ -79,8 +80,8 @@ internal class AccountControllerTest {
 
         val responseEntity = accountController.saveAccount(accountTo)
 
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-        assertEquals(savedAccount, responseEntity.body)
+        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+        assertThat(responseEntity.headers["Location"]?.get(0), containsString("/accounts/$accountId"))
     }
 
     @Test
