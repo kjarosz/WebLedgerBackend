@@ -10,6 +10,8 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
+import org.hamcrest.CoreMatchers.containsString
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
@@ -70,15 +72,16 @@ internal class AllocationCenterControllerTest {
 
     @Test
     fun `saveAllocationCenter - returns code 200 when account saved successfully`() {
+        val allocationCenterId = 1
         val allocationCenterTo = AllocationCenterTo(null, "New AC", BigDecimal.ONE, 1, 1)
-        val savedAllocationCenter = createTestAllocationCenter(1)
+        val savedAllocationCenter = createTestAllocationCenter(allocationCenterId)
 
         every { allocationCenterService.saveAllocationCenter(allocationCenterTo) } returns savedAllocationCenter
 
         val responseEntity = allocationCenterController.saveAllocationCenter(allocationCenterTo)
 
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-        assertEquals(savedAllocationCenter, responseEntity.body)
+        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+        assertThat(responseEntity.headers["Location"]?.get(0), containsString("/allocationcenters/$allocationCenterId"))
     }
 
     @Test

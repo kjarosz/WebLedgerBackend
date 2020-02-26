@@ -1,5 +1,6 @@
 package com.webledger.webledger.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.math.BigDecimal
 import javax.persistence.*
 
@@ -23,5 +24,6 @@ data class Account (
         var limit: BigDecimal,
 
         @OneToMany(mappedBy="account")
+        @JsonIgnore
         var allocationCenters: List<AllocationCenter>
 )
