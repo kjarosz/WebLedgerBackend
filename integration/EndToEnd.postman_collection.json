@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "6befdade-0439-46b6-b097-aec3089e73b2",
-		"name": "End to end",
+		"name": "EndToEnd",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -467,43 +467,43 @@
 	],
 	"variable": [
 		{
-			"id": "a2330750-d0d3-46a5-919c-7de628930f57",
+			"id": "c8db8f15-f27b-4b05-adb8-b7e52dda6fea",
 			"key": "initialAccountList",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "b1188bf6-641f-44a5-92a5-b609b83ef230",
+			"id": "8278c01f-74b6-497e-8f13-90c123fae6bf",
 			"key": "testAccountUrl",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "9fe149d7-1a58-44b3-9258-ca79f9e3a16d",
+			"id": "54701941-1450-40a4-a442-608ef9e931eb",
 			"key": "testAccountName",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "01d325be-01de-44e5-840d-654c62abc3e9",
+			"id": "d4912205-408d-4307-a946-3ef45857b88f",
 			"key": "testAccountId",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "9d659d8b-e443-4356-a984-1fbcb833aa07",
+			"id": "6725e17b-89fd-4089-80ed-1d48663e33e7",
 			"key": "testAllocationCenterName",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "14b8ea9c-9f57-4742-b9b9-59cd92b30174",
+			"id": "2dccd600-b27f-453c-bd73-cefee74dbf48",
 			"key": "testAllocationCenterUrl",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "40e4ac74-cd6f-43d2-a4a9-cfc97dd0b330",
+			"id": "6bce5b5a-3a23-4ee6-8adc-c0bef8663b73",
 			"key": "testAllocationCenterId",
 			"value": "",
 			"type": "string"

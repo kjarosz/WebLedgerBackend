@@ -1,0 +1,27 @@
+{
+	"info": {
+		"_postman_id": "5a165617-5e1d-4ff8-8f79-28f841e532a7",
+		"name": "Transactions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Save",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{localmachine}}/transactions/save",
+					"host": [
+						"{{localmachine}}"
+					],
+					"path": [
+						"transactions",
+						"save"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
