@@ -13,7 +13,8 @@ data class Account (
         @Column(nullable = false)
         var name: String,
 
-        @Column(nullable = false)
+        @Column(nullable = false,
+                columnDefinition = "smallint")
         @Enumerated
         var type: AccountType,
 

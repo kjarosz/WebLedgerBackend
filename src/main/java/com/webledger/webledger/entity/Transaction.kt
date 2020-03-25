@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import javax.persistence.*
 
-@Entity
+@Entity(name = "transactions")
 data class Transaction(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,7 +13,9 @@ data class Transaction(
         @Column(nullable = false)
         var dateCreated: LocalDate,
 
-        @Column(nullable = false)
+        @Column(nullable = false,
+                columnDefinition = "smallint")
+        @Enumerated
         var transactionType: TransactionType,
 
         @ManyToOne

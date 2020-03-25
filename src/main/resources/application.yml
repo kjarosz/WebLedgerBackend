@@ -5,7 +5,10 @@ spring:
     password: z4heFE
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         temp:
-          use_jdbc_metadata_default: false
+          use_jdbc_metadata_defaults: false
+
