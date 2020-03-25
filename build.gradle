@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.3.31'
+    ext.kotlin_version = '1.3.41'
     repositories {
         mavenCentral()
         maven {
@@ -13,8 +13,9 @@ buildscript {
     }
 }
 plugins {
-	id 'org.springframework.boot' version '2.1.3.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id 'java'
+    id "org.flywaydb.flyway" version "6.3.2"
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -27,25 +28,29 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: '2.7.4'
-  compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.7.9.1'
-  compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-  compile 'io.mockk:mockk:1.8.13.kotlin13'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.1.1'
-  compileOnly 'org.projectlombok:lombok:1.18.6'
-	annotationProcessor 'org.projectlombok:lombok:1.18.6'
-	runtimeOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.h2database:h2'
-  runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-web'
-  testCompile 'org.junit.jupiter:junit-jupiter:5.4.2'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: '2.7.4'
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.7.9.1'
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile 'io.mockk:mockk:1.8.13.kotlin13'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api-kotlin', version: '1.0.0'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.1.1'
+    compile group: 'org.flywaydb', name: 'flyway-core'
+    compile 'io.springfox:springfox-swagger2:2.7.0'
+    compile 'io.springfox:springfox-swagger-ui:2.7.0'
+    compileOnly 'org.projectlombok:lombok:1.18.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.6'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 compileKotlin {
   kotlinOptions {
@@ -72,3 +77,4 @@ docker {
   copySpec.from(tasks.unpack.outputs).into("dependency")
   buildArgs(["DEPENDENCY": "dependency"])
 }
+

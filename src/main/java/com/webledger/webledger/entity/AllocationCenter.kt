@@ -1,26 +1,35 @@
 package com.webledger.webledger.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.math.BigDecimal
 import javax.persistence.*
 
 @Entity
 data class AllocationCenter(
-        @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int? = null,
 
-        @Column(nullable = false)
+    @Column(nullable = false)
     var name: String,
 
-        @Column
+    @Column
     var amount: BigDecimal,
 
-        @Column
+    @Column
     var goal: BigDecimal,
 
-        @OneToOne
+    @ManyToOne
     var account: Account,
 
-        @OneToOne
-    var paidFrom: Account?
+    @ManyToOne
+    var paidFrom: Account?,
+
+    @OneToMany(mappedBy = "sourceAllocationCenter")
+    @JsonIgnore
+    var sourcesTransactions: List<Transaction>?,
+
+    @OneToMany(mappedBy = "destinationAllocationCenter")
+    @JsonIgnore
+    var destinationTransactions: List<Transaction>?
 )

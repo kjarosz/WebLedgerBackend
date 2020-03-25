@@ -1,0 +1,513 @@
+{
+	"info": {
+		"_postman_id": "6befdade-0439-46b6-b097-aec3089e73b2",
+		"name": "EndToEnd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Check account list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e5f59d0c-d955-4717-9f7e-9727f39ef1f1",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Save number of accounts\", function() {",
+							"    pm.variables.set(\"initialAccountList\", pm.response.json().length);",
+							"    console.log(\"Initial account list size: \" + pm.variables.get(\"initialAccountList\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/accounts/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						""
+					]
+				},
+				"description": "Take note of existing accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "Create new account",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fa7bff22-2a91-4fc4-9e57-71a9866f450f",
+						"exec": [
+							"var testAccountName = \"Test\" + new Date();",
+							"pm.variables.set(\"testAccountName\", testAccountName);",
+							"console.log(\"Test account name: \" + pm.variables.get(\"testAccountName\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bb7f13fb-d53c-46b4-8b28-8510af0a0b07",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Header contains Location with newly created account\", function () {",
+							"    pm.response.to.have.header(\"Location\");",
+							"    ",
+							"    var newAccountHeader = pm.response.headers.filter(function(header) {",
+							"        return header.key === \"Location\";",
+							"    })[0].value;",
+							"    ",
+							"    pm.variables.set(\"testAccountUrl\", newAccountHeader);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": null,\r\n  \"name\": \"{{testAccountName}}\",\r\n  \"type\": \"Checking\",\r\n  \"limit\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/accounts",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check saved account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f1154646-efff-4ef5-a83a-214b60c6211b",
+						"exec": [
+							"pm.test(\"Account name set to given name\", function() {",
+							"    pm.expect(pm.response.json().name).to.eql(pm.variables.get(\"testAccountName\"));",
+							"});",
+							"",
+							"pm.test(\"Account amount to be 0 for new account\", function() {",
+							"    pm.expect(pm.response.json().amount).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Save account id\", function() {",
+							"    pm.variables.set(\"testAccountId\", pm.response.json().id);",
+							"    console.log(\"Account id for saved test account: \" + pm.variables.get(\"testAccountId\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}{{testAccountUrl}}",
+					"host": [
+						"{{host}}{{testAccountUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check allocation center list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "61d375fa-9880-4e08-b02d-e246e177d43b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"No allocation centers with given source account are present\", function() {",
+							"    var testAccountId = pm.variables.get(\"testAccountId\");",
+							"    pm.expect(pm.response.json().some(hasTestAccountAsSource)).to.be.false;",
+							"    ",
+							"    function hasTestAccountAsSource(allocationCenter) {",
+							"        return allocationCenter.account.id === testAccountId;",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/allocationcenters",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"allocationcenters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create new allocation center",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0544c3b5-d050-405b-905d-868c9fb2e8a9",
+						"exec": [
+							"var testAllocationCenterName = \"Test\" + new Date();",
+							"pm.variables.set(\"testAllocationCenterName\", testAllocationCenterName);",
+							"console.log(\"Test allocation center name: \" + pm.variables.get(\"testAllocationCenterName\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "03723cda-07b8-40bb-b5a0-594587314e4d",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Header contains Location with newly created allocation center\", function () {",
+							"    pm.response.to.have.header(\"Location\");",
+							"    ",
+							"    var newEntityHeader = pm.response.headers.filter(function(header) {",
+							"        return header.key === \"Location\";",
+							"    })[0].value;",
+							"    ",
+							"    pm.variables.set(\"testAllocationCenterUrl\", newEntityHeader);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": null,\r\n  \"name\": \"{{testAllocationCenterName}}\",\r\n  \"goal\": 0,\r\n  \"accountId\": {{testAccountId}},\r\n  \"paidFrom\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/allocationcenters",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"allocationcenters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check saved allocation center",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f1154646-efff-4ef5-a83a-214b60c6211b",
+						"exec": [
+							"pm.test(\"Allocation center name set to given name\", function() {",
+							"    pm.expect(pm.response.json().name).to.eql(pm.variables.get(\"testAllocationCenterName\"));",
+							"});",
+							"",
+							"pm.test(\"Allocation Center amount to be 0 for new account\", function() {",
+							"    pm.expect(pm.response.json().amount).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Save allocation center id\", function() {",
+							"    pm.variables.set(\"testAllocationCenterId\", pm.response.json().id);",
+							"    console.log(\"Account id for saved test allocation center: \" + pm.variables.get(\"testAllocationCenterId\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}{{testAllocationCenterUrl}}",
+					"host": [
+						"{{host}}{{testAllocationCenterUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete new allocation center",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9e222ccb-4044-43e6-bb22-0e63a12024a1",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/allocationcenters/{{testAllocationCenterId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"allocationcenters",
+						"{{testAllocationCenterId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check allocation center is deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e5f59d0c-d955-4717-9f7e-9727f39ef1f1",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Does not have allocation center with test allocation center id\", function() {",
+							"    var testId = pm.variables.get(\"testAllocationCenterId\");",
+							"    pm.expect(pm.response.json().some(isTestEntity)).to.be.false;",
+							"    ",
+							"    function isTestEntity(entity) { ",
+							"        return entity.id === testId; ",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/allocationcenters",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"allocationcenters"
+					]
+				},
+				"description": "Take note of existing accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete new account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b0139537-aaef-4989-8c28-780b66d9494b",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/accounts/{{testAccountId}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"{{testAccountId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check account is deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e5f59d0c-d955-4717-9f7e-9727f39ef1f1",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Does not have account with test account id\", function() {",
+							"    var testAccountId = pm.variables.get(\"testAccountId\");",
+							"    pm.expect(pm.response.json().some(isTestAccount)).to.be.false;",
+							"    ",
+							"    function isTestAccount(account) { ",
+							"        return account.id === testAccountId; ",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/accounts/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						""
+					]
+				},
+				"description": "Take note of existing accounts"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8f5654d4-647c-4128-8609-45d89a96d688",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "ab1d42fb-b1af-482b-8948-75787612d739",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "c8db8f15-f27b-4b05-adb8-b7e52dda6fea",
+			"key": "initialAccountList",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "8278c01f-74b6-497e-8f13-90c123fae6bf",
+			"key": "testAccountUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "54701941-1450-40a4-a442-608ef9e931eb",
+			"key": "testAccountName",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d4912205-408d-4307-a946-3ef45857b88f",
+			"key": "testAccountId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "6725e17b-89fd-4089-80ed-1d48663e33e7",
+			"key": "testAllocationCenterName",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "2dccd600-b27f-453c-bd73-cefee74dbf48",
+			"key": "testAllocationCenterUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "6bce5b5a-3a23-4ee6-8adc-c0bef8663b73",
+			"key": "testAllocationCenterId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

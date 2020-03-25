@@ -1,5 +1,6 @@
 package com.webledger.webledger.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.math.BigDecimal
 import javax.persistence.*
 
@@ -12,7 +13,8 @@ data class Account (
         @Column(nullable = false)
         var name: String,
 
-        @Column(nullable = false)
+        @Column(nullable = false,
+                columnDefinition = "smallint")
         @Enumerated
         var type: AccountType,
 
@@ -20,5 +22,9 @@ data class Account (
         var amount: BigDecimal = BigDecimal.ZERO,
 
         @Column(name = "credit_limit", nullable = true)
-        var limit: BigDecimal
+        var limit: BigDecimal,
+
+        @OneToMany(mappedBy="account")
+        @JsonIgnore
+        var allocationCenters: List<AllocationCenter>
 )

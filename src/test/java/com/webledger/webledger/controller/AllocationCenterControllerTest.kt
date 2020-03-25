@@ -2,16 +2,22 @@ package com.webledger.webledger.controller
 
 import com.webledger.webledger.service.AllocationCenterService
 import com.webledger.webledger.service.createTestAllocationCenter
+import com.webledger.webledger.transferobject.AllocationCenterTo
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import org.hamcrest.CoreMatchers.containsString
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
+import java.math.BigDecimal
 
 @ExtendWith(MockKExtension::class)
 internal class AllocationCenterControllerTest {
@@ -63,17 +69,29 @@ internal class AllocationCenterControllerTest {
         assertNull(responseEntity.body)
 
     }
-//
-//    @Test
-//    fun `saveAllocationCenter - returns code 200 when account saved successfully`() {
-//        val allocationCenterId = 1
-//        val allocationCenterTo = AllocationCenterTo(null, "New AC", BigDecimal.ONE, 1, 1)
-//        val savedAllocationCenter = createTestAllocationCenter(allocationCenterId)
-//
-//        every { allocationCenterService.saveAllocationCenter(allocationCenterTo) } returns savedAllocationCenter
-//
-//        val responseEntity = allocationCenterController.saveAllocationCenter(allocationCenterTo)
-//
-//        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-//    }
+
+    @Test
+    fun `saveAllocationCenter - returns code 200 when account saved successfully`() {
+        val allocationCenterId = 1
+        val allocationCenterTo = AllocationCenterTo(null, "New AC", BigDecimal.ONE, 1, 1)
+        val savedAllocationCenter = createTestAllocationCenter(allocationCenterId)
+
+        every { allocationCenterService.saveAllocationCenter(allocationCenterTo) } returns savedAllocationCenter
+
+        val responseEntity = allocationCenterController.saveAllocationCenter(allocationCenterTo)
+
+        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+        assertThat(responseEntity.headers["Location"]?.get(0), containsString("/allocationcenters/$allocationCenterId"))
+    }
+
+    @Test
+    fun `deleteAllocationCenter - returns code NO_CONTENT after calling delete service`() {
+        val id = 1
+
+        every { allocationCenterService.deleteAllocationCenter(id) } just Runs
+
+        val responseEntity = allocationCenterController.deleteAllocationCenter(id)
+
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.statusCode)
+    }
 }

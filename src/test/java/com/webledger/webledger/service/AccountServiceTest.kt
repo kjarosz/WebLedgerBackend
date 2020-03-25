@@ -2,6 +2,8 @@ package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.Account
 import com.webledger.webledger.entity.AccountType
+import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
+import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo
 import io.mockk.*
@@ -103,18 +105,51 @@ internal class AccountServiceTest {
         val optionalWrapper = Optional.of(storedAccount)
         val accountSlot = slot<Account>()
 
-        every { accountRepository.existsById(accountTo.accountId) } returns true
+        every { accountRepository.existsById(accountTo.id) } returns true
         every { accountRepository.findById(storedAccount.id) } returns optionalWrapper
         every { accountRepository.save(capture(accountSlot)) } returns storedAccount
 
         accountService.saveAccount(accountTo)
 
         val savedAccount = accountSlot.captured
-        assertEquals(accountTo.accountId, savedAccount.id)
+        assertEquals(accountTo.id, savedAccount.id)
         assertEquals(accountTo.name, savedAccount.name)
         assertEquals(accountTo.type, savedAccount.type)
         assertEquals(storedAccount.amount, savedAccount.amount)
         assertEquals(accountTo.limit, savedAccount.limit)
+    }
+
+    @Test(expected = AccountNotFoundException::class)
+    fun `deleteAccount - non-existing account throws exception`() {
+        val id = 1
+
+        every { accountRepository.findByIdOrNull(id) } returns null
+
+        accountService.deleteAccount(id)
+    }
+
+    @Test(expected = DeleteEntityWithChildrenException::class)
+    fun `deleteAccount - account with associated allocation centers throws exception`() {
+        val id = 1
+        val account = createTestAccount(id)
+        account.allocationCenters = listOf(createTestAllocationCenter(id))
+
+        every { accountRepository.findByIdOrNull(id) } returns account
+
+        accountService.deleteAccount(id)
+    }
+
+    @Test
+    fun `deleteAccount - valid account is deleted`() {
+        val id = 1
+        val account = createTestAccount(id)
+
+        every { accountRepository.findByIdOrNull(id) } returns account
+        every { accountRepository.delete(account) } just Runs
+
+        accountService.deleteAccount(id)
+
+        verify(exactly = 1) { accountRepository.delete(account) }
     }
 }
 
@@ -124,7 +159,8 @@ fun createTestAccount(index: Int?): Account {
             "Test $index",
             AccountType.Checking,
             BigDecimal.ZERO,
-            BigDecimal.ONE
+            BigDecimal.ONE,
+            emptyList()
     )
 }
 

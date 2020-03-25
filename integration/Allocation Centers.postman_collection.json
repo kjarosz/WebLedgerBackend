@@ -1,0 +1,38 @@
+{
+	"info": {
+		"_postman_id": "7acd36d0-15e2-4617-b76a-3aa3328ac09e",
+		"name": "Allocation Centers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Save Allocation Center",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":null,\"name\":\"sgasdf\",\"goal\":\"5\",\"accountId\":1}"
+				},
+				"url": {
+					"raw": "{{host}}/allocationcenters/save",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"allocationcenters",
+						"save"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

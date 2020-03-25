@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/webledger'
+    username: webledger
+    password: z4heFE
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+
