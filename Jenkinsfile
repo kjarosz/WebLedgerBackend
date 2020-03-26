@@ -8,7 +8,7 @@ pipeline {
     }
     stage("Containerize") {
       steps {
-        sh "docker build --build-arg JAR_FILE=build/libs/*.jar -t kjarosz/WebLedgerBackend ."
+        sh "docker build --build-arg JAR_FILE=build/libs/*.jar -t kjarosz/webledgerbackend ."
       }
     }
   }
