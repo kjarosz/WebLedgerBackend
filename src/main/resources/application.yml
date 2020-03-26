@@ -4,7 +4,6 @@ spring:
     username: webledger
     password: z4heFE
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
     hibernate:
       ddl-auto: validate
     properties:
