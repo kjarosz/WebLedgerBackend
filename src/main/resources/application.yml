@@ -10,4 +10,10 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
-
+---
+spring:
+  profile: prod
+  datasource:
+    url: 'jdbc:postgresql://172.19.0.1:5432/webledger'
+    username: webledger
+    password: z4heFE
