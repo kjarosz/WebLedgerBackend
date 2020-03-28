@@ -1,7 +1,7 @@
 package com.webledger.webledger.service
 
-import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
+import com.webledger.webledger.entity.AllocationCenter
 import com.webledger.webledger.exceptions.AllocationCenterNotFoundException
 import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AllocationCenterRepository
@@ -15,7 +15,7 @@ import java.math.BigDecimal
 class AllocationCenterService(@Autowired val accountService: AccountService,
 
                               @Autowired val allocationCenterRepository: AllocationCenterRepository) {
-    fun getAllAllocationCenters(): Iterable<AllocationCenter>? = allocationCenterRepository.findAll()
+    fun getAllAllocationCenters(): Iterable<AllocationCenter> = allocationCenterRepository.findAll()
 
     fun getAllocationCenter(id: Int): AllocationCenter? = allocationCenterRepository.findByIdOrNull(id)
 

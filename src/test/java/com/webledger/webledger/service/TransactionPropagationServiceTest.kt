@@ -186,7 +186,6 @@ internal class TransactionPropagationServiceTest {
 
     @Test
     fun `reverseUpdateAccount - transaction that adds to destination removes amount from source`() {
-        val amount = BigDecimal.TEN
         val transaction = Transaction(0, LocalDate.now(), TransactionType.Add,
                 null, createTestAllocationCenter(0),
                 BigDecimal.TEN, null, null )

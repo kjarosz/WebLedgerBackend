@@ -10,13 +10,13 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
-import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
@@ -52,7 +52,6 @@ internal class TransactionServiceTest {
     fun setup() {
         MockKAnnotations.init(this)
         transactionServiceSpy = spyk(transactionService)
-        every { allocationCenterRepository.findById(null) } throws IllegalArgumentException()
     }
 
     @Test
@@ -158,7 +157,7 @@ internal class TransactionServiceTest {
         val transactionId: Int? = 1
         val transaction = createTestTransaction(transactionId!!)
 
-        every { transactionRepository.findByIdOrNull(transactionId!!) } returns transaction
+        every { transactionRepository.findByIdOrNull(transactionId) } returns transaction
 
         val retrievedTransaction = transactionService.getTransaction(transactionId)
 

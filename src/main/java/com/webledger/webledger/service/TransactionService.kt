@@ -26,9 +26,9 @@ class TransactionService(
         val allocationCenterRepository: AllocationCenterRepository
 ) {
 
-    fun getAllTransactions(): Iterable<Transaction>? = transactionRepository.findAll()
+    fun getAllTransactions(): Iterable<Transaction> = transactionRepository.findAll()
 
-    fun saveTransaction(transactionTo: TransactionTo): Transaction? {
+    fun saveTransaction(transactionTo: TransactionTo): Transaction {
         val transaction = createTransactionFromTo(transactionTo)
         transactionValidationService.validateTransaction(transaction)
         val oldTransaction = getTransaction(transactionTo.id)
@@ -40,14 +40,14 @@ class TransactionService(
         var sourceAllocationCenter: AllocationCenter? = null
         if (transactionTo.sourceAllocationCenterId != null) {
              sourceAllocationCenter = allocationCenterRepository
-                    .findById(transactionTo.sourceAllocationCenterId)
+                    .findById(transactionTo.sourceAllocationCenterId!!)
                     .orElse(null)
         }
 
         var destinationAllocationCenter: AllocationCenter? = null
         if (transactionTo.destinationAllocationCenterId != null) {
             destinationAllocationCenter = allocationCenterRepository
-                    .findById(transactionTo.destinationAllocationCenterId)
+                    .findById(transactionTo.destinationAllocationCenterId!!)
                     .orElse(null)
         }
 
@@ -65,7 +65,7 @@ class TransactionService(
 
     fun getTransaction(transactionId: Int?): Transaction? =
         if(transactionId != null)
-            transactionRepository.findByIdOrNull(transactionId!!)
+            transactionRepository.findByIdOrNull(transactionId)
         else
             null
 

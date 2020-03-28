@@ -1,7 +1,7 @@
 package com.webledger.webledger.service
 
-import com.webledger.webledger.entity.Account
 import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
+import com.webledger.webledger.entity.Account
 import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo
@@ -15,7 +15,7 @@ class AccountService(
         @Autowired
         val accountRepository: AccountRepository
 ) {
-    fun getAllAccounts(): Iterable<Account>? = accountRepository.findAll()
+    fun getAllAccounts(): Iterable<Account> = accountRepository.findAll()
 
     fun getAccount(id: Int) = accountRepository.findByIdOrNull(id)
 

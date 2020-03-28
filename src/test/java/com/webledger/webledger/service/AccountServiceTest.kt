@@ -1,8 +1,8 @@
 package com.webledger.webledger.service
 
+import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
 import com.webledger.webledger.entity.Account
 import com.webledger.webledger.entity.AccountType
-import com.webledger.webledger.controller.GlobalExceptionHandler.AccountNotFoundException
 import com.webledger.webledger.exceptions.DeleteEntityWithChildrenException
 import com.webledger.webledger.repository.AccountRepository
 import com.webledger.webledger.transferobject.AccountTo
@@ -105,8 +105,8 @@ internal class AccountServiceTest {
         val optionalWrapper = Optional.of(storedAccount)
         val accountSlot = slot<Account>()
 
-        every { accountRepository.existsById(accountTo.id) } returns true
-        every { accountRepository.findById(storedAccount.id) } returns optionalWrapper
+        every { accountRepository.existsById(accountTo.id!!) } returns true
+        every { accountRepository.findById(storedAccount.id!!) } returns optionalWrapper
         every { accountRepository.save(capture(accountSlot)) } returns storedAccount
 
         accountService.saveAccount(accountTo)

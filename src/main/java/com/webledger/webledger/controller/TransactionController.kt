@@ -16,7 +16,7 @@ class TransactionController(
 ) {
 
     @GetMapping("/transactions")
-    fun getAllTransactions(): ResponseEntity<Iterable<Transaction>?> {
+    fun getAllTransactions(): ResponseEntity<Iterable<Transaction>> {
         return ResponseEntity.ok(transactionService.getAllTransactions())
     }
 

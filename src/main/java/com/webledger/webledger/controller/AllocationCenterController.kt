@@ -21,7 +21,7 @@ class AllocationCenterController(
 
     @ApiOperation(value = "Get a list of all allocation centers", response = AllocationCenter::class)
     @GetMapping
-    fun getAllAllocationCenters(): ResponseEntity<Iterable<AllocationCenter>?> {
+    fun getAllAllocationCenters(): ResponseEntity<Iterable<AllocationCenter>> {
         return ResponseEntity.ok(allocationCenterService.getAllAllocationCenters())
     }
 
