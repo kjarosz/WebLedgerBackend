@@ -9,4 +9,7 @@ class GlobalExceptionHandler {
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     class AccountNotFoundException(message: String?) : Throwable(message)
+
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    class InvalidCredentialsException(message: String?) : Throwable(message)
 }
