@@ -8,10 +8,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.spyk
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.security.crypto.bcrypt.BCrypt
 
@@ -24,8 +24,24 @@ internal class AuthorizationServiceTest {
     @InjectMockKs
     lateinit var authorizationService: AuthorizationService
 
+    lateinit var authorizationServiceSpy: AuthorizationService
+
     @Before
-    fun setup() = MockKAnnotations.init(this)
+    fun setup() {
+        MockKAnnotations.init(this)
+        authorizationServiceSpy = spyk(authorizationService)
+    }
+
+    @Test
+    fun `login - verified user creates new session`() {
+        val user = User("", "", null)
+
+        every { authorizationServiceSpy.verifyUser(any(), any()) } returns user
+
+        val result = authorizationServiceSpy.login("", "")
+
+        assertNotNull(result)
+    }
 
     @Test(expected = InvalidCredentialsException::class)
     fun `verifyUser - user not found throws InvalidCredentialsException`() {
