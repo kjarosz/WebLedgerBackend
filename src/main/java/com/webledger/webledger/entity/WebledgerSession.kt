@@ -1,7 +1,5 @@
 package com.webledger.webledger.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
@@ -11,7 +9,9 @@ data class WebledgerSession (
         @Id
         val sessionId: UUID,
 
-        @Column
+        @OneToOne
+        @MapsId(value = "username")
+        @JoinColumn(name = "username", referencedColumnName = "username")
         val user: User,
 
         @Column

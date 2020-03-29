@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import java.math.BigDecimal
 import javax.persistence.*
 
-@Entity
+@Entity(name = "users")
 data class User (
         @Id
         val username: String,
 
-        @Column(nullable = false)
+        @Column(nullable = false,
+                columnDefinition = "bytea")
         val password: String,
 
         @Column

@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 @CrossOrigin(origins = ["http://localhost:4200", "https://webledger.ddns.net/"])
-@RequestMapping("accounts")
+@RequestMapping("user")
 class AuthorizationController(
         @Autowired
         private val authorizationService: AuthorizationService
 ) : Logging {
     @ApiOperation(value = "Log in user with username and password", response = Void::class)
-    @PostMapping
+    @PostMapping("login")
     fun login(@RequestBody username: String,
               @RequestBody password: String,
               response: HttpServletResponse): ResponseEntity<Void>
