@@ -4,6 +4,7 @@ import com.webledger.webledger.controller.GlobalExceptionHandler.InvalidCredenti
 import com.webledger.webledger.entity.User
 import com.webledger.webledger.entity.WebledgerSession
 import com.webledger.webledger.repository.UserRepository
+import com.webledger.webledger.repository.WebledgerSessionRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.stereotype.Service
@@ -13,7 +14,10 @@ import java.util.*
 @Service
 class AuthorizationService(
     @Autowired
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+
+    @Autowired
+    private val webledgerSessionRepository: WebledgerSessionRepository
 ) {
     fun hashPassword(plaintext: String): String {
         val salt = BCrypt.gensalt()
@@ -31,6 +35,8 @@ class AuthorizationService(
 
     fun login(username: String, password: String): WebledgerSession {
         val user = verifyUser(username, password)
-        return WebledgerSession(UUID.randomUUID(), user, LocalDateTime.now())
+        val webledgerSession = WebledgerSession(UUID.randomUUID(), user, LocalDateTime.now())
+        webledgerSessionRepository.save(webledgerSession)
+        return webledgerSession
     }
 }
