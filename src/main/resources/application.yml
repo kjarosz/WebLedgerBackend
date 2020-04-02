@@ -1,7 +1,9 @@
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: INFO
+server:
+  context-path: /api
 spring:
   datasource:
     url: 'jdbc:postgresql://localhost:5432/webledger'
@@ -14,6 +16,9 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+webledger:
+  security:
+    login-url: http://localhost:4200/login
 #---
 #spring:
   #profile: prod
