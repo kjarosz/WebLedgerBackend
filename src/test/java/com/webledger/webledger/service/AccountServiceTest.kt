@@ -10,9 +10,9 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.junit.Before
-import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
@@ -27,7 +27,7 @@ internal class AccountServiceTest {
     @InjectMockKs
     lateinit var accountService: AccountService
 
-    @Before
+    @BeforeEach
     fun setup() = MockKAnnotations.init(this)
 
     @Test
@@ -119,16 +119,16 @@ internal class AccountServiceTest {
         assertEquals(accountTo.limit, savedAccount.limit)
     }
 
-    @Test(expected = AccountNotFoundException::class)
+    @Test
     fun `deleteAccount - non-existing account throws exception`() {
         val id = 1
 
         every { accountRepository.findByIdOrNull(id) } returns null
 
-        accountService.deleteAccount(id)
+        assertThrows(AccountNotFoundException::class.java) { accountService.deleteAccount(id) }
     }
 
-    @Test(expected = DeleteEntityWithChildrenException::class)
+    @Test
     fun `deleteAccount - account with associated allocation centers throws exception`() {
         val id = 1
         val account = createTestAccount(id)
@@ -136,7 +136,7 @@ internal class AccountServiceTest {
 
         every { accountRepository.findByIdOrNull(id) } returns account
 
-        accountService.deleteAccount(id)
+        assertThrows(DeleteEntityWithChildrenException::class.java) { accountService.deleteAccount(id) }
     }
 
     @Test

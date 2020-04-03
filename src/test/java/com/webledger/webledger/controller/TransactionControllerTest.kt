@@ -11,10 +11,10 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
-import org.junit.Before
-import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import java.math.BigDecimal
@@ -29,7 +29,7 @@ internal class TransactionControllerTest {
     @InjectMockKs
     lateinit var transactionController: TransactionController
 
-    @Before
+    @BeforeEach
     fun setup() = MockKAnnotations.init(this)
 
     @Test

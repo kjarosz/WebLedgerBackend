@@ -12,9 +12,9 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.Assert.assertThat
-import org.junit.Before
-import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import java.math.BigDecimal
@@ -27,7 +27,7 @@ internal class AllocationCenterControllerTest {
     @InjectMockKs
     lateinit var allocationCenterController: AllocationCenterController
 
-    @Before
+    @BeforeEach
     fun setup() = MockKAnnotations.init(this)
 
     @Test

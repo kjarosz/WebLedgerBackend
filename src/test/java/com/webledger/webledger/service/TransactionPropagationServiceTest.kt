@@ -6,8 +6,8 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs;
 import io.mockk.junit5.MockKExtension;
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -19,7 +19,7 @@ internal class TransactionPropagationServiceTest {
 
     lateinit var transactionPropagationServiceSpy: TransactionPropagationService
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         transactionPropagationServiceSpy = spyk(transactionPropagationService)

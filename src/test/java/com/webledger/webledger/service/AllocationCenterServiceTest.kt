@@ -10,10 +10,9 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.junit.Before
-import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
@@ -30,7 +29,7 @@ internal class AllocationCenterServiceTest {
     @InjectMockKs
     lateinit var allocationCenterService: AllocationCenterService
 
-    @Before
+    @BeforeEach
     fun setup() = MockKAnnotations.init(this)
 
     @Test
@@ -77,13 +76,13 @@ internal class AllocationCenterServiceTest {
         assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
     }
 
-    @Test(expected = AccountNotFoundException::class)
+    @Test
     fun `saveAllocationCenter - nonexistent account throws an invalid account error`() {
         val allocationCenterTo = createTestAllocationCenterTo(null, 0)
 
         every { accountService.getAccount(0) } returns null
 
-        allocationCenterService.saveAllocationCenter(allocationCenterTo)
+        assertThrows(AccountNotFoundException::class.java) { allocationCenterService.saveAllocationCenter(allocationCenterTo) }
     }
 
     @Test
@@ -106,13 +105,13 @@ internal class AllocationCenterServiceTest {
         assertEquals(BigDecimal.ZERO, savedAllocationCenter?.amount)
     }
 
-    @Test(expected = AllocationCenterNotFoundException::class)
+    @Test
     fun `deleteAllocationCenter - non existent allocation center throws exception`() {
         val id = 1
 
         every { allocationCenterRepository.findByIdOrNull(id) } returns null
 
-        allocationCenterService.deleteAllocationCenter(id)
+        assertThrows(AllocationCenterNotFoundException::class.java) { allocationCenterService.deleteAllocationCenter(id) }
     }
 
     @Test
@@ -128,7 +127,7 @@ internal class AllocationCenterServiceTest {
         verify(exactly = 1) { allocationCenterRepository.delete(allocationCenter) }
     }
 
-    @Test(expected = DeleteEntityWithChildrenException::class)
+    @Test
     fun `deleteAllocationCenter - allocation center with sources transactions throws exception`() {
         val id = 1
         val allocationCenter = createTestAllocationCenter(id)
@@ -136,10 +135,10 @@ internal class AllocationCenterServiceTest {
 
         every { allocationCenterRepository.findByIdOrNull(id) } returns allocationCenter
 
-        allocationCenterService.deleteAllocationCenter(id)
+        assertThrows(DeleteEntityWithChildrenException::class.java) { allocationCenterService.deleteAllocationCenter(id) }
     }
 
-    @Test(expected = DeleteEntityWithChildrenException::class)
+    @Test
     fun `deleteAllocationCenter - allocation center with destination transactions throws exception`() {
         val id = 1
         val allocationCenter = createTestAllocationCenter(id)
@@ -147,7 +146,7 @@ internal class AllocationCenterServiceTest {
 
         every { allocationCenterRepository.findByIdOrNull(id) } returns allocationCenter
 
-        allocationCenterService.deleteAllocationCenter(id)
+        assertThrows(DeleteEntityWithChildrenException::class.java) { allocationCenterService.deleteAllocationCenter(id) }
     }
 }
 

@@ -2,7 +2,6 @@ package com.webledger.webledger.configuration
 
 import com.webledger.webledger.service.AuthorizationService
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration

@@ -7,10 +7,9 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.junit.Before
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
@@ -29,7 +28,7 @@ internal class AuthorizationControllerTest {
     @InjectMockKs
     lateinit var authorizationController: AuthorizationController
 
-    @Before
+    @BeforeEach
     fun setup() = MockKAnnotations.init(this)
 
     @Test

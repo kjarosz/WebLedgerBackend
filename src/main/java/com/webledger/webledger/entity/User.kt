@@ -1,8 +1,8 @@
 package com.webledger.webledger.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import java.math.BigDecimal
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
 
 @Entity(name = "users")
 data class User (

@@ -12,9 +12,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Before
-import org.junit.Test
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
@@ -48,7 +49,7 @@ internal class TransactionServiceTest {
             null, createTestAllocationCenter(transactionTo.destinationAllocationCenterId),
             transactionTo.amount, transactionTo.dateBankProcessed, createTestAccount(transactionTo.creditAccountId) )
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         transactionServiceSpy = spyk(transactionService)
@@ -105,11 +106,11 @@ internal class TransactionServiceTest {
         verify { transactionPropagationService.propagateTransactionChanges(newTransaction, oldTransaction) }
     }
 
-    @Test(expected = Exception::class)
+    @Test
     fun `saveTransaction - invalid transaction throws exception and does not save`() {
         every { transactionValidationService.validateTransaction(any()) } throws Exception()
 
-        transactionServiceSpy.saveTransaction(transactionTo)
+        assertThrows(Exception::class.java) { transactionServiceSpy.saveTransaction(transactionTo) }
 
         verify(exactly = 0) { transactionRepository.save<Transaction>(any()) }
     }
@@ -182,13 +183,13 @@ internal class TransactionServiceTest {
         assertNull(retrievedTransaction)
     }
 
-    @Test(expected = TransactionNotFoundException::class)
+    @Test
     fun `deleteTransaction - transaction not found throws exception`() {
         val transactionId = 1
 
         every { transactionServiceSpy.getTransaction(transactionId) } returns null
 
-        transactionServiceSpy.deleteTransaction(transactionId)
+        assertThrows(TransactionNotFoundException::class.java) { transactionServiceSpy.deleteTransaction(transactionId) }
     }
 
     @Test

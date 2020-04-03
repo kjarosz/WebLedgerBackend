@@ -10,13 +10,12 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.spyk
-import org.junit.Before
-import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCrypt
 import java.time.LocalDateTime
 import java.util.*
@@ -35,7 +34,7 @@ internal class AuthorizationServiceTest {
 
     lateinit var authorizationServiceSpy: AuthorizationService
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         authorizationServiceSpy = spyk(authorizationService)
@@ -55,11 +54,11 @@ internal class AuthorizationServiceTest {
         assertNotNull(result)
     }
 
-    @Test(expected = BadCredentialsException::class)
+    @Test
     fun `verifyUser - user not found throws InvalidCredentialsException`() {
         every { userRepository.findByUsername(any()) } returns null
 
-        authorizationService.verifyUser("", "")
+        assertThrows(BadCredentialsException::class.java) { authorizationService.verifyUser("", "") }
     }
 
     @Test
@@ -76,7 +75,7 @@ internal class AuthorizationServiceTest {
         assertEquals(user, result)
     }
 
-    @Test(expected = BadCredentialsException::class)
+    @Test
     fun `verifyUser - password does not match throws InvalidCredentialsException`() {
         val username = "user"
         val password = "hello"
@@ -85,7 +84,7 @@ internal class AuthorizationServiceTest {
 
         every { userRepository.findByUsername(username) } returns user
 
-        authorizationService.verifyUser(username, password)
+        assertThrows(BadCredentialsException::class.java) { authorizationService.verifyUser(username, password) }
     }
 
     @Test
