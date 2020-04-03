@@ -1,6 +1,5 @@
 package com.webledger.webledger.service
 
-import com.webledger.webledger.controller.GlobalExceptionHandler.InvalidCredentialsException
 import com.webledger.webledger.entity.User
 import com.webledger.webledger.entity.WebledgerSession
 import com.webledger.webledger.repository.UserRepository
@@ -15,6 +14,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCrypt
 import java.time.LocalDateTime
 import java.util.*
@@ -53,7 +55,7 @@ internal class AuthorizationServiceTest {
         assertNotNull(result)
     }
 
-    @Test(expected = InvalidCredentialsException::class)
+    @Test(expected = BadCredentialsException::class)
     fun `verifyUser - user not found throws InvalidCredentialsException`() {
         every { userRepository.findByUsername(any()) } returns null
 
@@ -74,7 +76,7 @@ internal class AuthorizationServiceTest {
         assertEquals(user, result)
     }
 
-    @Test(expected = InvalidCredentialsException::class)
+    @Test(expected = BadCredentialsException::class)
     fun `verifyUser - password does not match throws InvalidCredentialsException`() {
         val username = "user"
         val password = "hello"
@@ -93,6 +95,20 @@ internal class AuthorizationServiceTest {
         val hashedPassword = authorizationService.hashPassword(plaintext)
 
         assertTrue(BCrypt.checkpw(plaintext, hashedPassword))
+    }
+
+    @Test
+    fun `authenticate - verified user returns authentication token`() {
+        val username = "user"
+        val password = "pass"
+        val authentication = UsernamePasswordAuthenticationToken(username, password)
+        val user = User(username, BCrypt.hashpw(password, BCrypt.gensalt()), null)
+
+        every { authorizationServiceSpy.verifyUser(username, password) } returns user
+
+        val result = authorizationServiceSpy.authenticate(authentication)
+
+        assertTrue(result!!.isAuthenticated)
     }
 }
 
