@@ -1,9 +1,7 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.User
-import com.webledger.webledger.entity.WebledgerSession
 import com.webledger.webledger.repository.UserRepository
-import com.webledger.webledger.repository.WebledgerSessionRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,15 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCrypt
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 import java.util.*
 
 @Service
 class AuthorizationService(
     @Autowired
-    private val userRepository: UserRepository,
-    @Autowired
-    private val webledgerSessionRepository: WebledgerSessionRepository
+    private val userRepository: UserRepository
 ): AuthenticationProvider {
     private val log: Logger = LoggerFactory.getLogger(AuthorizationService::class.java.simpleName)
 
@@ -42,13 +37,6 @@ class AuthorizationService(
             }
             throw BadCredentialsException("No match found for provided credentials")
         }
-    }
-
-    fun login(username: String, password: String): WebledgerSession {
-        val user = verifyUser(username, password)
-        val webledgerSession = WebledgerSession(UUID.randomUUID(), user, LocalDateTime.now())
-        webledgerSessionRepository.save(webledgerSession)
-        return webledgerSession
     }
 
     override fun authenticate(authentication: Authentication?): Authentication? {

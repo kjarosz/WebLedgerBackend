@@ -1,9 +1,7 @@
 package com.webledger.webledger.service
 
 import com.webledger.webledger.entity.User
-import com.webledger.webledger.entity.WebledgerSession
 import com.webledger.webledger.repository.UserRepository
-import com.webledger.webledger.repository.WebledgerSessionRepository
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -26,9 +24,6 @@ internal class AuthorizationServiceTest {
     @MockK
     lateinit var userRepository: UserRepository
 
-    @MockK
-    lateinit var webledgerSessionRepository: WebledgerSessionRepository
-
     @InjectMockKs
     lateinit var authorizationService: AuthorizationService
 
@@ -38,20 +33,6 @@ internal class AuthorizationServiceTest {
     fun setup() {
         MockKAnnotations.init(this)
         authorizationServiceSpy = spyk(authorizationService)
-    }
-
-    @Test
-    fun `login - verified user creates new session`() {
-        val user = User("", "", null)
-
-        every { authorizationServiceSpy.verifyUser(any(), any()) } returns user
-        every {
-            webledgerSessionRepository.save<WebledgerSession>(any())
-        } returns WebledgerSession(UUID.randomUUID(), user, LocalDateTime.MAX)
-
-        val result = authorizationServiceSpy.login("", "")
-
-        assertNotNull(result)
     }
 
     @Test
