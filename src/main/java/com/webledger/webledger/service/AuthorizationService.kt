@@ -53,8 +53,8 @@ class AuthorizationService(
 
     override fun authenticate(authentication: Authentication?): Authentication? {
         log.info("Authenticating user: {}", authentication?.name)
-        val user = verifyUser(authentication!!.name, authentication!!.credentials.toString())
-        log.info("User: {} successfully authenticated", authentication!!.name)
+        val user = verifyUser(authentication!!.name, authentication.credentials.toString())
+        log.info("User: {} successfully authenticated", authentication.name)
         return UsernamePasswordAuthenticationToken(user.name, user.password, ArrayList())
     }
 

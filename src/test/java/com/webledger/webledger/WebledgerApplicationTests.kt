@@ -13,6 +13,5 @@ import org.springframework.test.context.junit4.SpringRunner
 class WebledgerApplicationTests {
     @Test
     fun contextLoads() {
-        fail { "testing failure" }
     }
 }
