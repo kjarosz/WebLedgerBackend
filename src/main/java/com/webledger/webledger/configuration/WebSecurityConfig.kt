@@ -4,12 +4,14 @@ import com.webledger.webledger.service.AuthorizationService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.provisioning.JdbcUserDetailsManager
 import javax.servlet.ServletContext
 import javax.sql.DataSource
 
@@ -40,26 +42,31 @@ open class WebSecurityConfig(
                 .passwordEncoder(BCryptPasswordEncoder())
     }
 
+    @Bean
+    open fun jdbcUserDetailsManager(dataSource: DataSource): JdbcUserDetailsManager {
+        val jdbcUserDetailsManager = JdbcUserDetailsManager()
+        jdbcUserDetailsManager.dataSource = dataSource
+        return jdbcUserDetailsManager
+    }
+
     override fun configure(http: HttpSecurity) {
         log.info("Setting up security with WebLedgerSecurity: {}", webLedgerSecurity)
-        val loginProcessingUrl = servletContext.contextPath + "/login"
-        log.info("Login url: {}", loginProcessingUrl)
-        http
-                .authorizeRequests()
-                .antMatchers(servletContext.contextPath + "/**")
-                .authenticated()
-                .antMatchers(loginProcessingUrl)
-                .permitAll()
-                .and()
-                .formLogin()
-                .loginPage(webLedgerSecurity.loginUrl)
-                .loginProcessingUrl(loginProcessingUrl)
-                .permitAll()
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .and()
-                //.authenticationProvider(authorizationService)
-                .csrf()
-                .disable()
+        if (webLedgerSecurity.enabled) {
+            log.info("Securing endpoints at context-path: {}", servletContext.contextPath)
+            val loginProcessingUrl = servletContext.contextPath + "/login"
+            http.authorizeRequests().antMatchers(servletContext.contextPath + "/**").authenticated().antMatchers(
+                    loginProcessingUrl).permitAll().and().formLogin().loginPage(
+                    webLedgerSecurity.loginUrl).loginProcessingUrl(loginProcessingUrl).permitAll().usernameParameter(
+                    "username").passwordParameter("password").and()
+                    .csrf().disable()
+        } else {
+            log.info("Security disabled")
+            http.authorizeRequests()
+                    .anyRequest()
+                    .permitAll()
+                    .and()
+                    .csrf()
+                    .disable()
+        }
     }
 }

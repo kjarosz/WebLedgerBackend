@@ -9,11 +9,13 @@ data class User (
         @Id
         val username: String,
 
-        @Column(nullable = false,
-                columnDefinition = "bytea")
+        @Column(nullable = false)
         val password: String,
 
         @Column
-        val name: String?
+        val name: String?,
+
+        @Column
+        val enabled: Boolean
 
 )

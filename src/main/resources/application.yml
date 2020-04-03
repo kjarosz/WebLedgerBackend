@@ -18,6 +18,7 @@ spring:
           use_jdbc_metadata_defaults: false
 webledger:
   security:
+    enabled: false
     login-url: http://localhost:4200/login
 #---
 #spring:

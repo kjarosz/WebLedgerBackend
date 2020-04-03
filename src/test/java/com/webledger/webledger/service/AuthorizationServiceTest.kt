@@ -47,7 +47,7 @@ internal class AuthorizationServiceTest {
         val username = "user"
         val password = "hello"
 
-        val user = User(username, BCrypt.hashpw(password, BCrypt.gensalt()), null)
+        val user = User(username, BCrypt.hashpw(password, BCrypt.gensalt()), null, true)
 
         every { userRepository.findByUsername(username) } returns user
 
@@ -61,7 +61,7 @@ internal class AuthorizationServiceTest {
         val username = "user"
         val password = "hello"
 
-        val user = User(username, BCrypt.hashpw("other", BCrypt.gensalt()), null)
+        val user = User(username, BCrypt.hashpw("other", BCrypt.gensalt()), null, true)
 
         every { userRepository.findByUsername(username) } returns user
 
@@ -82,7 +82,7 @@ internal class AuthorizationServiceTest {
         val username = "user"
         val password = "pass"
         val authentication = UsernamePasswordAuthenticationToken(username, password)
-        val user = User(username, BCrypt.hashpw(password, BCrypt.gensalt()), null)
+        val user = User(username, BCrypt.hashpw(password, BCrypt.gensalt()), null, true)
 
         every { authorizationServiceSpy.verifyUser(username, password) } returns user
 

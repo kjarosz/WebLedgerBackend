@@ -1,6 +1,6 @@
 create table users (
     username varchar(50) primary key,
-    password bytea not null,
+    password varchar(60) not null,
     name varchar(32),
     enabled boolean not null
 );
@@ -15,8 +15,6 @@ create table webledger_session (
     username varchar(50) not null references users(username),
     expires Timestamp not null
 );
-
-
 
 alter table account add column ownerUsername varchar(50) references users(username) on delete cascade;
 alter table allocation_center add column ownerUsername varchar(50) references users(username) on delete cascade;
