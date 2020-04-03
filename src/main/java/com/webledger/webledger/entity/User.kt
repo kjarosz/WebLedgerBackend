@@ -3,6 +3,7 @@ package com.webledger.webledger.entity
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.OneToMany
 
 @Entity(name = "users")
 data class User (
@@ -17,5 +18,4 @@ data class User (
 
         @Column
         val enabled: Boolean
-
 )

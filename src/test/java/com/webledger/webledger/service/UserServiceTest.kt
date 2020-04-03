@@ -1,8 +1,11 @@
 package com.webledger.webledger.service
 
+import com.webledger.webledger.entity.Authority
 import com.webledger.webledger.entity.User
 import com.webledger.webledger.repository.AllocationCenterRepository
+import com.webledger.webledger.repository.AuthorityRepository
 import com.webledger.webledger.repository.UserRepository
+import com.webledger.webledger.transferobject.UserTo
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -21,6 +24,9 @@ internal class UserServiceTest {
     @MockK
     lateinit var userRepository: UserRepository
 
+    @MockK
+    lateinit var authorityRepository: AuthorityRepository
+
     @InjectMockKs
     lateinit var userService: UserService
 
@@ -37,13 +43,17 @@ internal class UserServiceTest {
 
     @Test
     fun `register - create user with roles`() {
-        val user = User(username, password,"", true)
+        val userTo = UserTo(username, password,"", listOf("authority"))
+        val user = User("", "", "", true)
         val userSlot = slot<User>()
+        val authoritiesSlot = slot<Iterable<Authority>>()
 
         every { userRepository.save(capture(userSlot)) } returns user
+        every { authorityRepository.saveAll<Authority>(capture(authoritiesSlot)) } returns emptyList()
 
-        userService.register(user)
+        userService.register(userTo)
 
         assertTrue(BCryptPasswordEncoder().matches(password, userSlot.captured.password))
+        assertEquals(1, authoritiesSlot.captured.count())
     }
 }
