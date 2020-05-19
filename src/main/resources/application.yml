@@ -1,7 +1,7 @@
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: INFO
 server:
   context-path: /api
 spring:
@@ -16,6 +16,11 @@ spring:
       hibernate:
         temp:
           use_jdbc_metadata_defaults: false
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      schema: classpath:org/springframework/session/jdbc/schema-@@platform@@.sql
 webledger:
   security:
     enabled: false

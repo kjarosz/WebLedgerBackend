@@ -10,11 +10,6 @@ create table authorities (
     authority varchar(50)
 );
 
-create table webledger_session (
-    session_id uuid primary key,
-    username varchar(50) not null references users(username),
-    expires Timestamp not null
-);
 
 alter table account add column ownerUsername varchar(50) references users(username) on delete cascade;
 alter table allocation_center add column ownerUsername varchar(50) references users(username) on delete cascade;
