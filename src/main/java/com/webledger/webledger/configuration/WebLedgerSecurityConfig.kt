@@ -9,4 +9,5 @@ import kotlin.properties.Delegates
 open class WebLedgerSecurityConfig {
     var enabled by Delegates.notNull<Boolean>()
     lateinit var loginUrl: String
+    lateinit var successUrl: String
 }

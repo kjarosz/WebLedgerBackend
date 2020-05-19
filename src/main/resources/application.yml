@@ -25,6 +25,7 @@ webledger:
   security:
     enabled: true
     login-url: http://localhost:4200/login
+    success-url: http://localhost:4200/
 #---
 #spring:
   #profile: prod

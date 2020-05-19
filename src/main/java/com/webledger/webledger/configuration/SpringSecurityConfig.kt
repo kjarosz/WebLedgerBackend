@@ -63,7 +63,7 @@ open class SpringSecurityConfig(
                     .formLogin()
                     .loginPage(webLedgerSecurityConfig.loginUrl)
                     .loginProcessingUrl(loginProcessingUrl)
-                    .permitAll()
+                    .defaultSuccessUrl(webLedgerSecurityConfig.successUrl)
                     .usernameParameter( "username")
                     .passwordParameter("password")
                     .and()
