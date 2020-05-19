@@ -35,12 +35,6 @@ repositories {
     mavenCentral()
 }
 
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.session:spring-session-bom:Corn-SR2'
-    }
-}
-
 dependencies {
     compile group: "com.fasterxml.jackson.module", name: "jackson-module-jsonSchema", version: "2.7.4"
     compile group: "com.fasterxml.jackson.module", name: "jackson-module-kotlin", version: "2.7.9.1"
@@ -59,6 +53,8 @@ dependencies {
     compile "io.springfox:springfox-swagger2:2.7.0"
     compile "io.springfox:springfox-swagger-ui:2.7.0"
     compile "org.springframework.session:spring-session-jdbc"
+    // spring-sessions-jdbc gets the wrong version of spring-jdbc
+    compile "org.springframework:spring-jdbc:5.2.6.RELEASE"
     runtimeOnly "org.springframework.boot:spring-boot-devtools"
     runtimeOnly "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"

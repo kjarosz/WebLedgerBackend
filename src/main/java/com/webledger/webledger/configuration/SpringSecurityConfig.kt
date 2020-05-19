@@ -17,15 +17,15 @@ import javax.sql.DataSource
 
 @Configuration
 @EnableWebSecurity
-open class WebSecurityConfig(
+open class SpringSecurityConfig(
         @Autowired
-        private val webLedgerSecurity: WebLedgerSecurity,
+        private val webLedgerSecurityConfig: WebLedgerSecurityConfig,
         @Autowired
         private val servletContext: ServletContext,
         @Autowired
         private val authorizationService: AuthorizationService
 ): WebSecurityConfigurerAdapter() {
-    private val log: Logger = getLogger(WebSecurityConfig::class.java.simpleName)
+    private val log: Logger = getLogger(SpringSecurityConfig::class.java.simpleName)
 
     private val usersByUsernameQuery =
             "select username, password, enabled from users where lower(username) = lower(?)"
@@ -50,15 +50,25 @@ open class WebSecurityConfig(
     }
 
     override fun configure(http: HttpSecurity) {
-        log.info("Setting up security with WebLedgerSecurity: {}", webLedgerSecurity)
-        if (webLedgerSecurity.enabled) {
+        log.info("Setting up security with WebLedgerSecurity: {}", webLedgerSecurityConfig)
+        if (webLedgerSecurityConfig.enabled) {
             log.info("Securing endpoints at context-path: {}", servletContext.contextPath)
             val loginProcessingUrl = servletContext.contextPath + "/login"
-            http.authorizeRequests().antMatchers(servletContext.contextPath + "/**").authenticated().antMatchers(
-                    loginProcessingUrl).permitAll().and().formLogin().loginPage(
-                    webLedgerSecurity.loginUrl).loginProcessingUrl(loginProcessingUrl).permitAll().usernameParameter(
-                    "username").passwordParameter("password").and()
-                    .csrf().disable()
+            http.authorizeRequests()
+                    .antMatchers(servletContext.contextPath + "/**")
+                    .authenticated()
+                    .antMatchers(loginProcessingUrl)
+                    .permitAll()
+                    .and()
+                    .formLogin()
+                    .loginPage(webLedgerSecurityConfig.loginUrl)
+                    .loginProcessingUrl(loginProcessingUrl)
+                    .permitAll()
+                    .usernameParameter( "username")
+                    .passwordParameter("password")
+                    .and()
+                    .csrf()
+                    .disable()
         } else {
             log.info("Security disabled")
             http.authorizeRequests()

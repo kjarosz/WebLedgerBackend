@@ -23,7 +23,7 @@ spring:
       schema: classpath:org/springframework/session/jdbc/schema-@@platform@@.sql
 webledger:
   security:
-    enabled: false
+    enabled: true
     login-url: http://localhost:4200/login
 #---
 #spring:

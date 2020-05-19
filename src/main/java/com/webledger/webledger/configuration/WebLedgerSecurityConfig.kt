@@ -6,7 +6,7 @@ import kotlin.properties.Delegates
 
 @Configuration
 @ConfigurationProperties(prefix = "webledger.security")
-open class WebLedgerSecurity {
+open class WebLedgerSecurityConfig {
     var enabled by Delegates.notNull<Boolean>()
     lateinit var loginUrl: String
 }
