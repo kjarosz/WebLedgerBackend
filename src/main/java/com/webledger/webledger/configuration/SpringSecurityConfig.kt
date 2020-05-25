@@ -7,11 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.provisioning.JdbcUserDetailsManager
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import javax.servlet.ServletContext
 import javax.sql.DataSource
 
@@ -49,6 +54,17 @@ open class SpringSecurityConfig(
         return jdbcUserDetailsManager
     }
 
+    @Bean
+    open fun corsConfigurationSource(): CorsConfigurationSource {
+        val corsConfiguration = CorsConfiguration()
+        corsConfiguration.addAllowedOrigin("http://localhost:4200")
+
+        val corsConfigurationSource = UrlBasedCorsConfigurationSource()
+        corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
+
+        return corsConfigurationSource
+    }
+
     override fun configure(http: HttpSecurity) {
         log.info("Setting up security with WebLedgerSecurity: {}", webLedgerSecurityConfig)
         if (webLedgerSecurityConfig.enabled) {
@@ -66,6 +82,8 @@ open class SpringSecurityConfig(
                     .defaultSuccessUrl(webLedgerSecurityConfig.successUrl)
                     .usernameParameter( "username")
                     .passwordParameter("password")
+                    .and()
+                    .cors()
                     .and()
                     .csrf()
                     .disable()
