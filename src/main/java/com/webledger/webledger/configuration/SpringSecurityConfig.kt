@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -16,7 +15,6 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.servlet.config.annotation.CorsRegistry
 import javax.servlet.ServletContext
 import javax.sql.DataSource
 
@@ -69,21 +67,10 @@ open class SpringSecurityConfig(
         log.info("Setting up security with WebLedgerSecurity: {}", webLedgerSecurityConfig)
         if (webLedgerSecurityConfig.enabled) {
             log.info("Securing endpoints at context-path: {}", servletContext.contextPath)
-            val loginProcessingUrl = servletContext.contextPath + "/login"
-            http.authorizeRequests()
-                    .antMatchers(servletContext.contextPath + "/**")
-                    .authenticated()
-                    .antMatchers(loginProcessingUrl)
-                    .permitAll()
-                    .and()
-                    .formLogin()
-                    .loginPage(webLedgerSecurityConfig.loginUrl)
-                    .loginProcessingUrl(loginProcessingUrl)
-                    .defaultSuccessUrl(webLedgerSecurityConfig.successUrl)
-                    .usernameParameter( "username")
-                    .passwordParameter("password")
-                    .and()
-                    .cors()
+            val loginProcessingUrl = antMatcherPath("/login")
+            configureLoginForm(http, loginProcessingUrl)
+            authenticateEndpoints(http, loginProcessingUrl)
+            http.cors()
                     .and()
                     .csrf()
                     .disable()
@@ -96,5 +83,33 @@ open class SpringSecurityConfig(
                     .csrf()
                     .disable()
         }
+    }
+
+    private fun authenticateEndpoints(http: HttpSecurity, loginProcessingUrl: String) {
+        http.authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .antMatchers(loginProcessingUrl,
+                             antMatcherPath("/swagger-ui.html"),
+                             antMatcherPath("/webjars/**"),
+                             antMatcherPath("/swagger-resources/**"),
+                             antMatcherPath("/v2/api-docs*"),
+                             antMatcherPath("/actuator/**"))
+                .permitAll()
+    }
+
+    private fun configureLoginForm(http: HttpSecurity, loginProcessingUrl: String) {
+        http.formLogin()
+                .loginPage(webLedgerSecurityConfig.loginUrl)
+                .loginProcessingUrl(loginProcessingUrl)
+                .defaultSuccessUrl(webLedgerSecurityConfig.successUrl)
+                .usernameParameter("username")
+                .passwordParameter("password")
+    }
+
+    private fun antMatcherPath(antMatcher: String): String {
+        var path = servletContext.contextPath + antMatcher
+        log.debug("Matching path: $path")
+        return path
     }
 }
