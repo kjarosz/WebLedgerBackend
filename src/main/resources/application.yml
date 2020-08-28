@@ -3,7 +3,8 @@ logging:
     org:
       springframework: INFO
 server:
-  context-path: /api
+  servlet:
+    context-path: /api
 spring:
   datasource:
     url: 'jdbc:postgresql://localhost:5432/webledger'
